@@ -86,12 +86,14 @@ All header files should have `#define` guards to prevent multiple inclusion. The
 
 To guarantee uniqueness, they should be based on the full path in a project's source tree. For example, the file `foo/src/bar/baz.h` in project `foo` should have the following guard:
 
-    #ifndef FOO_BAR_BAZ_H_
-    #define FOO_BAR_BAZ_H_
+```C++
+#ifndef FOO_BAR_BAZ_H_
+#define FOO_BAR_BAZ_H_
 
-    ...
+...
 
-    #endif  // FOO_BAR_BAZ_H_
+#endif  // FOO_BAR_BAZ_H_
+```
 
 ## Include What You Use
 
@@ -105,11 +107,13 @@ Avoid using forward declarations where possible. Instead, _include the headers y
 
 A "forward declaration" is a declaration of an entity without an associated definition.
 
-    // In a C++ source file:
-    class B;
-    void FuncInB();
-    extern int variable_in_b;
-    ABSL_DECLARE_FLAG(flag_in_b);
+```C++
+// In a C++ source file:
+class B;
+void FuncInB();
+extern int variable_in_b;
+ABSL_DECLARE_FLAG(flag_in_b);
+```
 
 - Forward declarations can save compile time, as `#include`s force the compiler to open more files and process more input.
 - Forward declarations can save on unnecessary recompilation. `#include`s can force your code to be recompiled more often, due to unrelated changes in the header.
@@ -120,15 +124,17 @@ A "forward declaration" is a declaration of an entity without an associated defi
 - Forward declaring symbols from namespace `std::` yields undefined behavior.
 - It can be difficult to determine whether a forward declaration or a full `#include` is needed. Replacing an `#include` with a forward declaration can silently change the meaning of code:
 
-      // b.h:
-      struct B {};
-      struct D : B {};
+```C++
+  // b.h:
+  struct B {};
+  struct D : B {};
 
-      // good_user.cc:
-      #include "b.h"
-      void f(B*);
-      void f(void*);
-      void test(D* x) { f(x); }  // Calls f(B*)
+  // good_user.cc:
+  #include "b.h"
+  void f(B*);
+  void f(void*);
+  void test(D* x) { f(x); }  // Calls f(B*)
+```
 
 If the `#include` was replaced with forward decls for `B` and `D`, `test()` would call `f(void*)`.
 
@@ -159,7 +165,9 @@ Include headers in the following order: Related header, C system headers, C++ st
 
 All of a project's header files should be listed as descendants of the project's source directory without use of UNIX directory aliases `.` (the current directory) or `..` (the parent directory). For example, `google-awesome-project/src/base/logging.h` should be included as:
 
-    #include "base/logging.h"
+```C++
+#include "base/logging.h"
+```
 
 In `dir/foo.cc` or `dir/foo_test.cc`, whose main purpose is to implement or test the stuff in `dir2/foo2.h`, order your includes as follows:
 
@@ -187,29 +195,33 @@ Within each section the includes should be ordered alphabetically. Note that old
 
 For example, the includes in `google-awesome-project/src/foo/internal/fooserver.cc` might look like this:
 
-    #include "foo/server/fooserver.h"
+```C++
+#include "foo/server/fooserver.h"
 
-    #include <sys/types.h>
-    #include <unistd.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-    #include <string>
-    #include <vector>
+#include <string>
+#include <vector>
 
-    #include "base/basictypes.h"
-    #include "foo/server/bar.h"
-    #include "third_party/absl/flags/flag.h"
+#include "base/basictypes.h"
+#include "foo/server/bar.h"
+#include "third_party/absl/flags/flag.h"
+```
 
 **Exception:**
 
 Sometimes, system-specific code needs conditional includes. Such code can put conditional includes after other includes. Of course, keep your system-specific code small and localized. Example:
 
-    #include "foo/public/fooserver.h"
+```C++
+#include "foo/public/fooserver.h"
 
-    #include "base/port.h"  // For LANG_CXX11.
+#include "base/port.h"  // For LANG_CXX11.
 
-    #ifdef LANG_CXX11
-    #include <initializer_list>
-    #endif  // LANG_CXX11
+#ifdef LANG_CXX11
+#include <initializer_list>
+#endif  // LANG_CXX11
+```
 
 # Scoping
 
@@ -227,11 +239,13 @@ Inline namespaces automatically place their names in the enclosing scope. Consid
 
 **neutralcode**
 
-    namespace outer {
-    inline namespace inner {
-      void foo();
-    }  // namespace inner
-    }  // namespace outer
+```C++
+namespace outer {
+inline namespace inner {
+  void foo();
+}  // namespace inner
+}  // namespace outer
+```
 
 The expressions `outer::inner::foo()` and `outer::foo()` are interchangeable. Inline namespaces are primarily intended for ABI compatibility across versions.
 
@@ -247,43 +261,48 @@ Namespaces should be used as follows:
 - Terminate multi-line namespaces with comments as shown in the given examples.
 - Namespaces wrap the entire source file after includes, [gflags](https://gflags.github.io/gflags/) definitions/declarations and forward declarations of classes from other namespaces.
 
-      // In the .h file
-      namespace mynamespace {
+```C++
+  // In the .h file
+  namespace mynamespace {
 
-      // All declarations are within the namespace scope.
-      // Notice the lack of indentation.
-      class MyClass {
-       public:
-        ...
-        void Foo();
-      };
+  // All declarations are within the namespace scope.
+  // Notice the lack of indentation.
+  class MyClass {
+   public:
+    ...
+    void Foo();
+  };
 
-      }  // namespace mynamespace
+  }  // namespace mynamespace
+```
 
+```C++
+  // In the .cc file
+  namespace mynamespace {
 
-      // In the .cc file
-      namespace mynamespace {
+  // Definition of functions is within scope of the namespace.
+  void MyClass::Foo() {
+    ...
+  }
 
-      // Definition of functions is within scope of the namespace.
-      void MyClass::Foo() {
-        ...
-      }
-
-      }  // namespace mynamespace
+  }  // namespace mynamespace
+```
 
 More complex `.cc` files might have additional details, like flags or using-declarations.
 
-      #include "a.h"
+```C++
+  #include "a.h"
 
-      ABSL_FLAG(bool, someflag, false, "a flag");
+  ABSL_FLAG(bool, someflag, false, "a flag");
 
-      namespace mynamespace {
+  namespace mynamespace {
 
-      using ::foo::Bar;
+  using ::foo::Bar;
 
-      ...code for mynamespace...    // Code goes against the left margin.
+  ...code for mynamespace...    // Code goes against the left margin.
 
-      }  // namespace mynamespace
+  }  // namespace mynamespace
+```
 
 - To place generated protocol message code in a namespace, use the `package` specifier in the `.proto` file. See [Protocol Buffer Packages](https://developers.google.com/protocol-buffers/docs/reference/cpp-generated#package) for details.
 - Do not declare anything in namespace `std`, including forward declarations of standard library classes. Declaring entities in namespace `std` is undefined behavior, i.e., not portable. To declare entities from the standard library, include the appropriate header file.
@@ -291,35 +310,42 @@ More complex `.cc` files might have additional details, like flags or using-decl
 
   **badcode**
 
-      // Forbidden -- This pollutes the namespace.
-      using namespace foo;
+```C++
+  // Forbidden -- This pollutes the namespace.
+  using namespace foo;
+```
 
 - Do not use _Namespace aliases_ at namespace scope in header files except in explicitly marked internal-only namespaces, because anything imported into a namespace in a header file becomes part of the public API exported by that file.
 
-      // Shorten access to some commonly used names in .cc files.
-      namespace baz = ::foo::bar::baz;
+```C++
+  // Shorten access to some commonly used names in .cc files.
+  namespace baz = ::foo::bar::baz;
+```
 
+```C++
+  // Shorten access to some commonly used names (in a .h file).
+  namespace librarian {
+  namespace impl {  // Internal, not part of the API.
+  namespace sidetable = ::pipeline_diagnostics::sidetable;
+  }  // namespace impl
 
-      // Shorten access to some commonly used names (in a .h file).
-      namespace librarian {
-      namespace impl {  // Internal, not part of the API.
-      namespace sidetable = ::pipeline_diagnostics::sidetable;
-      }  // namespace impl
-
-      inline void my_inline_function() {
-        // namespace alias local to a function (or method).
-        namespace baz = ::foo::bar::baz;
-        ...
-      }
-      }  // namespace librarian
+  inline void my_inline_function() {
+    // namespace alias local to a function (or method).
+    namespace baz = ::foo::bar::baz;
+    ...
+  }
+  }  // namespace librarian
+```
 
 - Do not use inline namespaces.
 - Use namespaces with "internal" in the name to document parts of an API that should not be mentioned by users of the API.
 
   **badcode**
 
-      // We shouldn't use this internal name in non-absl code.
-      using ::absl::container_internal::ImplementationDetail;
+```C++
+  // We shouldn't use this internal name in non-absl code.
+  using ::absl::container_internal::ImplementationDetail;
+```
 
 ## Internal Linkage
 
@@ -331,9 +357,11 @@ Use of internal linkage in `.cc` files is encouraged for all code that does not 
 
 Format unnamed namespaces like named namespaces. In the terminating comment, leave the namespace name empty:
 
-    namespace {
-    ...
-    }  // namespace
+```C++
+namespace {
+...
+}  // namespace
+```
 
 ## Nonmember, Static Member, and Global Functions
 
@@ -355,51 +383,66 @@ C++ allows you to declare variables anywhere in a function. We encourage you to 
 
 **badcode**
 
-    int i;
-    i = f();      // Bad -- initialization separate from declaration.
+```C++
+int i;
+i = f();      // Bad -- initialization separate from declaration.
+```
 
-
-    int i = f();  // Good -- declaration has initialization.
-
-**badcode**
-
-    int jobs = NumJobs();
-    // More code...
-    f(jobs);      // Bad -- declaration separate from use.
-
-
-    int jobs = NumJobs();
-    f(jobs);      // Good -- declaration immediately (or closely) followed by use.
+```C++
+int i = f();  // Good -- declaration has initialization.
+```
 
 **badcode**
 
-    std::vector<int> v;
-    v.push_back(1);  // Prefer initializing using brace initialization.
-    v.push_back(2);
+```C++
+int jobs = NumJobs();
+// More code...
+f(jobs);      // Bad -- declaration separate from use.
+```
 
+```C++
+int jobs = NumJobs();
+f(jobs);      // Good -- declaration immediately (or closely) followed by use.
+```
 
-    std::vector<int> v = {1, 2};  // Good -- v starts initialized.
+**badcode**
+
+```C++
+std::vector<int> v;
+v.push_back(1);  // Prefer initializing using brace initialization.
+v.push_back(2);
+```
+
+```C++
+std::vector<int> v = {1, 2};  // Good -- v starts initialized.
+```
 
 Variables needed for `if`, `while` and `for` statements should normally be declared within those statements, so that such variables are confined to those scopes. E.g.:
 
-    while (const char* p = strchr(str, '/')) str = p + 1;
+```C++
+while (const char* p = strchr(str, '/')) str = p + 1;
+```
 
 There is one caveat: if the variable is an object, its constructor is invoked every time it enters scope and is created, and its destructor is invoked every time it goes out of scope.
 
 **badcode**
 
-    // Inefficient implementation:
-    for (int i = 0; i < 1000000; ++i) {
-      Foo f;  // My ctor and dtor get called 1000000 times each.
-      f.DoSomething(i);
-    }
+```C++
+// Inefficient implementation:
+for (int i = 0; i < 1000000; ++i) {
+  Foo f;  // My ctor and dtor get called 1000000 times each.
+  f.DoSomething(i);
+}
+```
 
 It may be more efficient to declare such a variable used in a loop outside that loop:
 
-    Foo f;  // My ctor and dtor get called once each.
-    for (int i = 0; i < 1000000; ++i) {
-      f.DoSomething(i);
-    }
+```C++
+Foo f;  // My ctor and dtor get called once each.
+for (int i = 0; i < 1000000; ++i) {
+  f.DoSomething(i);
+}
+```
 
 ## Static and Global Variables
 
@@ -419,31 +462,35 @@ Global and static variables that use dynamic initialization or have non-trivial 
 
 When destructors are trivial, their execution is not subject to ordering at all (they are effectively not "run"); otherwise we are exposed to the risk of accessing objects after the end of their lifetime. Therefore, we only allow objects with static storage duration if they are trivially destructible. Fundamental types (like pointers and `int`) are trivially destructible, as are arrays of trivially destructible types. Note that variables marked with `constexpr` are trivially destructible.
 
-    const int kNum = 10;  // Allowed
+```C++
+const int kNum = 10;  // Allowed
 
-    struct X { int n; };
-    const X kX[] = {{1}, {2}, {3}};  // Allowed
+struct X { int n; };
+const X kX[] = {{1}, {2}, {3}};  // Allowed
 
-    void foo() {
-      static const char* const kMessages[] = {"hello", "world"};  // Allowed
-    }
+void foo() {
+  static const char* const kMessages[] = {"hello", "world"};  // Allowed
+}
 
-    // Allowed: constexpr guarantees trivial destructor.
-    constexpr std::array<int, 3> kArray = {1, 2, 3};
+// Allowed: constexpr guarantees trivial destructor.
+constexpr std::array<int, 3> kArray = {1, 2, 3};
+```
 
 **badcode**
 
-    // bad: non-trivial destructor
-    const std::string kFoo = "foo";
+```C++
+// bad: non-trivial destructor
+const std::string kFoo = "foo";
 
-    // Bad for the same reason, even though kBar is a reference (the
-    // rule also applies to lifetime-extended temporary objects).
-    const std::string& kBar = StrCat("a", "b", "c");
+// Bad for the same reason, even though kBar is a reference (the
+// rule also applies to lifetime-extended temporary objects).
+const std::string& kBar = StrCat("a", "b", "c");
 
-    void bar() {
-      // Bad: non-trivial destructor.
-      static std::map<int, int> kData = {{1, 0}, {2, 0}, {3, 0}};
-    }
+void bar() {
+  // Bad: non-trivial destructor.
+  static std::map<int, int> kData = {{1, 0}, {2, 0}, {3, 0}};
+}
+```
 
 Note that references are not objects, and thus they are not subject to the constraints on destructibility. The constraint on dynamic initialization still applies, though. In particular, a function-local static reference of the form `static T& t = *new T;` is allowed.
 
@@ -453,20 +500,24 @@ Initialization is a more complex topic. This is because we must not only conside
 
 **neutralcode**
 
-    int n = 5;    // Fine
-    int m = f();  // ? (Depends on f)
-    Foo x;        // ? (Depends on Foo::Foo)
-    Bar y = g();  // ? (Depends on g and on Bar::Bar)
+```C++
+int n = 5;    // Fine
+int m = f();  // ? (Depends on f)
+Foo x;        // ? (Depends on Foo::Foo)
+Bar y = g();  // ? (Depends on g and on Bar::Bar)
+```
 
 All but the first statement expose us to indeterminate initialization ordering.
 
 The concept we are looking for is called _constant initialization_ in the formal language of the C++ standard. It means that the initializing expression is a constant expression, and if the object is initialized by a constructor call, then the constructor must be specified as `constexpr`, too:
 
-    struct Foo { constexpr Foo(int) {} };
+```C++
+struct Foo { constexpr Foo(int) {} };
 
-    int n = 5;  // Fine, 5 is a constant expression.
-    Foo x(2);   // Fine, 2 is a constant expression and the chosen constructor is constexpr.
-    Foo a[] = { Foo(1), Foo(2), Foo(3) };  // Fine
+int n = 5;  // Fine, 5 is a constant expression.
+Foo x(2);   // Fine, 2 is a constant expression and the chosen constructor is constexpr.
+Foo a[] = { Foo(1), Foo(2), Foo(3) };  // Fine
+```
 
 Constant initialization is always allowed. Constant initialization of static storage duration variables should be marked with `constexpr` or where possible the [`ABSL_CONST_INIT`](https://github.com/abseil/abseil-cpp/blob/03c1513538584f4a04d666be5eb469e3979febba/absl/base/attributes.h#L540) attribute. Any non-local static storage duration variable that is not so marked should be presumed to have dynamic initialization, and reviewed very carefully.
 
@@ -474,20 +525,24 @@ By contrast, the following initializations are problematic:
 
 **badcode**
 
-    // Some declarations used below.
-    time_t time(time_t*);      // Not constexpr!
-    int f();                   // Not constexpr!
-    struct Bar { Bar() {} };
+```C++
+// Some declarations used below.
+time_t time(time_t*);      // Not constexpr!
+int f();                   // Not constexpr!
+struct Bar { Bar() {} };
 
-    // Problematic initializations.
-    time_t m = time(nullptr);  // Initializing expression not a constant expression.
-    Foo y(f());                // Ditto
-    Bar b;                     // Chosen constructor Bar::Bar() not constexpr.
+// Problematic initializations.
+time_t m = time(nullptr);  // Initializing expression not a constant expression.
+Foo y(f());                // Ditto
+Bar b;                     // Chosen constructor Bar::Bar() not constexpr.
+```
 
 Dynamic initialization of nonlocal variables is discouraged, and in general it is forbidden. However, we do permit it if no aspect of the program depends on the sequencing of this initialization with respect to all other initializations. Under those restrictions, the ordering of the initialization does not make an observable difference. For example:
 
-    int p = getpid();  // Allowed, as long as no other static variable
-                       // uses p in its own initialization.
+```C++
+int p = getpid();  // Allowed, as long as no other static variable
+                   // uses p in its own initialization.
+```
 
 Dynamic initialization of static local variables is allowed (and common).
 
@@ -505,7 +560,9 @@ Dynamic initialization of static local variables is allowed (and common).
 
 Variables can be declared with the `thread_local` specifier:
 
-    thread_local Foo foo = ...;
+```C++
+thread_local Foo foo = ...;
+```
 
 Such a variable is actually a collection of objects, so that when different threads access it, they are actually accessing different objects. `thread_local` variables are much like _static storage duration variables_ in many respects. For instance, they can be declared at namespace scope, inside functions, or as static class members, but not as ordinary class members.
 
@@ -525,14 +582,18 @@ Such a variable is actually a collection of objects, so that when different thre
 
 `thread_local` variables at class or namespace scope must be initialized with a true compile-time constant (i.e., they must have no dynamic initialization). To enforce this, `thread_local` variables at class or namespace scope must be annotated with [`ABSL_CONST_INIT`](https://github.com/abseil/abseil-cpp/blob/master/absl/base/attributes.h) (or `constexpr`, but that should be rare):
 
-      ABSL_CONST_INIT thread_local Foo foo = ...;
+```C++
+  ABSL_CONST_INIT thread_local Foo foo = ...;
+```
 
 `thread_local` variables inside a function have no initialization concerns, but still risk use-after-free during thread exit. Note that you can use a function-scope `thread_local` to simulate a class- or namespace-scope `thread_local` by defining a function or static method that exposes it:
 
-    Foo& MyThreadLocalFoo() {
-      thread_local Foo result = ComplicatedInitialization();
-      return result;
-    }
+```C++
+Foo& MyThreadLocalFoo() {
+  thread_local Foo result = ComplicatedInitialization();
+  return result;
+}
+```
 
 Note that `thread_local` variables will be destroyed whenever a thread exits. If the destructor of any such variable refers to any other (potentially-destroyed) `thread_local` we will suffer from hard to diagnose use-after-free bugs. Prefer trivial types, or types that provably run no user-provided code at destruction to minimize the potential of accessing any other `thread_local`.
 
@@ -568,16 +629,20 @@ In addition to the implicit conversions defined by the language, users can defin
 
 The `explicit` keyword can be applied to a constructor or a conversion operator, to ensure that it can only be used when the destination type is explicit at the point of use, e.g., with a cast. This applies not only to implicit conversions, but to list initialization syntax:
 
-    class Foo {
-      explicit Foo(int x, double y);
-      ...
-    };
+```C++
+class Foo {
+  explicit Foo(int x, double y);
+  ...
+};
 
-    void Func(Foo f);
+void Func(Foo f);
+```
 
 **badcode**
 
-    Func({42, 3.14});  // Error
+```C++
+Func({42, 3.14});  // Error
+```
 
 This kind of code isn't technically an implicit conversion, but the language treats it as one as far as `explicit` is concerned.
 
@@ -624,39 +689,41 @@ Every class's public interface must make clear which copy and move operations th
 
 Specifically, a copyable class should explicitly declare the copy operations, a move-only class should explicitly declare the move operations, and a non-copyable/movable class should explicitly delete the copy operations. A copyable class may also declare move operations in order to support efficient moves. Explicitly declaring or deleting all four copy/move operations is permitted, but not required. If you provide a copy or move assignment operator, you must also provide the corresponding constructor.
 
-    class Copyable {
-     public:
-      Copyable(const Copyable& other) = default;
-      Copyable& operator=(const Copyable& other) = default;
+```C++
+class Copyable {
+ public:
+  Copyable(const Copyable& other) = default;
+  Copyable& operator=(const Copyable& other) = default;
 
-      // The implicit move operations are suppressed by the declarations above.
-      // You may explicitly declare move operations to support efficient moves.
-    };
+  // The implicit move operations are suppressed by the declarations above.
+  // You may explicitly declare move operations to support efficient moves.
+};
 
-    class MoveOnly {
-     public:
-      MoveOnly(MoveOnly&& other) = default;
-      MoveOnly& operator=(MoveOnly&& other) = default;
+class MoveOnly {
+ public:
+  MoveOnly(MoveOnly&& other) = default;
+  MoveOnly& operator=(MoveOnly&& other) = default;
 
-      // The copy operations are implicitly deleted, but you can
-      // spell that out explicitly if you want:
-      MoveOnly(const MoveOnly&) = delete;
-      MoveOnly& operator=(const MoveOnly&) = delete;
-    };
+  // The copy operations are implicitly deleted, but you can
+  // spell that out explicitly if you want:
+  MoveOnly(const MoveOnly&) = delete;
+  MoveOnly& operator=(const MoveOnly&) = delete;
+};
 
-    class NotCopyableOrMovable {
-     public:
-      // Not copyable or movable
-      NotCopyableOrMovable(const NotCopyableOrMovable&) = delete;
-      NotCopyableOrMovable& operator=(const NotCopyableOrMovable&)
-          = delete;
+class NotCopyableOrMovable {
+ public:
+  // Not copyable or movable
+  NotCopyableOrMovable(const NotCopyableOrMovable&) = delete;
+  NotCopyableOrMovable& operator=(const NotCopyableOrMovable&)
+      = delete;
 
-      // The move operations are implicitly disabled, but you can
-      // spell that out explicitly if you want:
-      NotCopyableOrMovable(NotCopyableOrMovable&&) = delete;
-      NotCopyableOrMovable& operator=(NotCopyableOrMovable&&)
-          = delete;
-    };
+  // The move operations are implicitly disabled, but you can
+  // spell that out explicitly if you want:
+  NotCopyableOrMovable(NotCopyableOrMovable&&) = delete;
+  NotCopyableOrMovable& operator=(NotCopyableOrMovable&&)
+      = delete;
+};
+```
 
 These declarations/deletions can be omitted only if they are obvious:
 
@@ -802,11 +869,13 @@ Use overloaded functions (including constructors) only if a reader looking at a 
 
 You may write a function that takes a `const std::string&` and overload it with another that takes `const char*`. However, in this case consider `std::string_view` instead.
 
-    class MyClass {
-     public:
-      void Analyze(const std::string &text);
-      void Analyze(const char *text, size_t textlen);
-    };
+```C++
+class MyClass {
+ public:
+  void Analyze(const std::string &text);
+  void Analyze(const char *text, size_t textlen);
+};
+```
 
 Overloading can make code more intuitive by allowing an identically-named function to take different arguments. It may be necessary for templatized code, and it can be convenient for Visitors.
 
@@ -840,11 +909,15 @@ Use trailing return types only where using the ordinary syntax (leading return t
 
 C++ allows two different forms of function declarations. In the older form, the return type appears before the function name. For example:
 
-    int foo(int x);
+```C++
+int foo(int x);
+```
 
 The newer form uses the `auto` keyword before the function name and a trailing return type after the argument list. For example, the declaration above could equivalently be written:
 
-    auto foo(int x) -> int;
+```C++
+auto foo(int x) -> int;
+```
 
 The trailing return type is in the function's scope. This doesn't make a difference for a simple case like `int` but it matters for more complicated cases, like types declared in class scope or types written in terms of the function parameters.
 
@@ -852,13 +925,17 @@ Trailing return types are the only way to explicitly specify the return type of 
 
 Sometimes it's easier and more readable to specify a return type after the function's parameter list has already appeared. This is particularly true when the return type depends on template parameters. For example:
 
-        template <typename T, typename U>
-        auto add(T t, U u) -> decltype(t + u);
+```C++
+    template <typename T, typename U>
+    auto add(T t, U u) -> decltype(t + u);
+```
 
 versus
 
-        template <typename T, typename U>
-        decltype(declval<T&>() + declval<U&>()) add(T t, U u);
+```C++
+    template <typename T, typename U>
+    decltype(declval<T&>() + declval<U&>()) add(T t, U u);
+```
 
 Trailing return type syntax is relatively new and it has no analogue in C++-like languages such as C and Java, so some readers may find it unfamiliar.
 
@@ -897,8 +974,10 @@ Prefer to have single, fixed owners for dynamically allocated objects. Prefer to
 
 If dynamic allocation is necessary, prefer to keep ownership with the code that allocated it. If other code needs access to the object, consider passing it a copy, or passing a pointer or reference without transferring ownership. Prefer to use `std::unique_ptr` to make ownership transfer explicit. For example:
 
-    std::unique_ptr<Foo> FooFactory();
-    void FooConsumer(std::unique_ptr<Foo> ptr);
+```C++
+std::unique_ptr<Foo> FooFactory();
+void FooConsumer(std::unique_ptr<Foo> ptr);
+```
 
 Do not design your code to use shared ownership without a very good reason. One such reason is to avoid expensive copy operations, but you should only do this if the performance benefits are significant, and the underlying object is immutable (i.e., `std::shared_ptr<const Foo>`). If you do use shared ownership, prefer to use `std::shared_ptr`.
 
@@ -1003,13 +1082,15 @@ RTTI can be useful in some unit tests. For example, it is useful in tests of fac
 
 RTTI is useful when considering multiple abstract objects. Consider
 
-    bool Base::Equal(Base* other) = 0;
-    bool Derived::Equal(Base* other) {
-      Derived* that = dynamic_cast<Derived*>(other);
-      if (that == nullptr)
-        return false;
-      ...
-    }
+```C++
+bool Base::Equal(Base* other) = 0;
+bool Derived::Equal(Base* other) {
+  Derived* that = dynamic_cast<Derived*>(other);
+  if (that == nullptr)
+    return false;
+  ...
+}
+```
 
 Querying the type of an object at run-time frequently means a design problem. Needing to know the type of an object at runtime is often an indication that the design of your class hierarchy is flawed.
 
@@ -1026,12 +1107,14 @@ Decision trees based on type are a strong indication that your code is on the wr
 
 **badcode**
 
-    if (typeid(*data) == typeid(D1)) {
-      ...
-    } else if (typeid(*data) == typeid(D2)) {
-      ...
-    } else if (typeid(*data) == typeid(D3)) {
-    ...
+```C++
+if (typeid(*data) == typeid(D1)) {
+  ...
+} else if (typeid(*data) == typeid(D2)) {
+  ...
+} else if (typeid(*data) == typeid(D3)) {
+...
+```
 
 Code such as this usually breaks when additional subclasses are added to the class hierarchy. Moreover, when properties of a subclass change, it is difficult to find and modify all the affected code segments.
 
@@ -1172,8 +1255,10 @@ Code should be 64-bit and 32-bit friendly. Bear in mind problems of printing, co
 - You may need to be careful with structure alignments, particularly for structures being stored on disk. Any class/structure with a `int64_t`/`uint64_t` member will by default end up being 8-byte aligned on a 64-bit system. If you have such structures being shared on disk between 32-bit and 64-bit code, you will need to ensure that they are packed the same on both architectures. Most compilers offer a way to alter structure alignment. For gcc, you can use `__attribute__((packed))`. MSVC offers `#pragma pack()` and `__declspec(align())`.
 - Use [braced-initialization](#Casting) as needed to create 64-bit constants. For example:
 
-      int64_t my_value{0x123456789};
-      uint64_t my_mask{uint64_t{3} << 48};
+```C++
+  int64_t my_value{0x123456789};
+  uint64_t my_mask{uint64_t{3} << 48};
+```
 
 ## Preprocessor Macros
 
@@ -1185,14 +1270,16 @@ The problems introduced by macros are especially severe when they are used to de
 
 **badcode**
 
-    class WOMBAT_TYPE(Foo) {
-      // ...
+```C++
+class WOMBAT_TYPE(Foo) {
+  // ...
 
-     public:
-      EXPAND_PUBLIC_WOMBAT_API(Foo)
+ public:
+  EXPAND_PUBLIC_WOMBAT_API(Foo)
 
-      EXPAND_WOMBAT_COMPARISONS(Foo, ==, <)
-    };
+  EXPAND_WOMBAT_COMPARISONS(Foo, ==, <)
+};
+```
 
 Luckily, macros are not nearly as necessary in C++ as they are in C. Instead of using a macro to inline performance-critical code, use an inline function. Instead of using a macro to store a constant, use a `const` variable. Instead of using a macro to "abbreviate" a long variable name, use a reference. Instead of using a macro to conditionally compile code ... well, don't do that at all (except, of course, for the `#define` guards to prevent double inclusion of header files). It makes testing much more difficult.
 
@@ -1222,18 +1309,23 @@ Prefer `sizeof(varname)` to `sizeof(type)`.
 
 Use `sizeof(varname)` when you take the size of a particular variable. `sizeof(varname)` will update appropriately if someone changes the variable type either now or later. You may use `sizeof(type)` for code unrelated to any particular variable, such as code that manages an external or internal data format where a variable of an appropriate C++ type is not convenient.
 
-    MyStruct data;
-    memset(&data, 0, sizeof(data));
+```C++
+MyStruct data;
+memset(&data, 0, sizeof(data));
+```
 
 **badcode**
 
-    memset(&data, 0, sizeof(MyStruct));
+```C++
+memset(&data, 0, sizeof(MyStruct));
+```
 
-
-    if (raw_size < sizeof(int)) {
-      LOG(ERROR) << "compressed record not big enough for count: " << raw_size;
-      return false;
-    }
+```C++
+if (raw_size < sizeof(int)) {
+  LOG(ERROR) << "compressed record not big enough for count: " << raw_size;
+  return false;
+}
+```
 
 ## Type Deduction (including auto)
 
@@ -1245,19 +1337,23 @@ There are several contexts in which C++ allows (or even requires) types to be de
 
 A function template can be invoked without explicit template arguments. The compiler deduces those arguments from the types of the function arguments: **neutralcode**
 
-    template <typename T>
-    void f(T t);
+```C++
+template <typename T>
+void f(T t);
 
-    f(0);  // Invokes f<int>(0)
+f(0);  // Invokes f<int>(0)
+```
 
 ### [`auto` variable declarations](https://en.cppreference.com/w/cpp/language/auto)
 
 A variable declaration can use the `auto` keyword in place of the type. The compiler deduces the type from the variable's initializer, following the same rules as function template argument deduction with the same initializer (so long as you don't use curly braces instead of parentheses). **neutralcode**
 
-    auto a = 42;  // a is an int
-    auto& b = a;  // b is an int&
-    auto c = b;   // c is an int
-    auto d{42};   // d is an int, not a std::initializer_list<int>
+```C++
+auto a = 42;  // a is an int
+auto& b = a;  // b is an int&
+auto c = b;   // c is an int
+auto d{42};   // d is an int, not a std::initializer_list<int>
+```
 
 `auto` can be qualified with `const`, and can be used as part of a pointer or reference type, but it can't be used as a template argument. A rare variant of this syntax uses `decltype(auto)` instead of `auto`, in which case the deduced type is the result of applying [`decltype`](https://en.cppreference.com/w/cpp/language/decltype) to the initializer.
 
@@ -1265,7 +1361,9 @@ A variable declaration can use the `auto` keyword in place of the type. The comp
 
 `auto` (and `decltype(auto)`) can also be used in place of a function return type. The compiler deduces the return type from the `return` statements in the function body, following the same rules as for variable declarations: **neutralcode**
 
-    auto f() { return 0; }  // The return type of f is int
+```C++
+auto f() { return 0; }  // The return type of f is int
+```
 
 _Lambda expression_ return types can be deduced in the same way, but this is triggered by omitting the return type, rather than by an explicit `auto`. Confusingly, _trailing return type_ syntax for functions also uses `auto` in the return-type position, but that doesn't rely on type deduction; it's just an alternate syntax for an explicit return type.
 
@@ -1273,14 +1371,18 @@ _Lambda expression_ return types can be deduced in the same way, but this is tri
 
 A lambda expression can use the `auto` keyword in place of one or more of its parameter types. This causes the lambda's call operator to be a function template instead of an ordinary function, with a separate template parameter for each `auto` function parameter: **neutralcode**
 
-    // Sort `vec` in decreasing order
-    std::sort(vec.begin(), vec.end(), [](auto lhs, auto rhs) { return lhs > rhs; });
+```C++
+// Sort `vec` in decreasing order
+std::sort(vec.begin(), vec.end(), [](auto lhs, auto rhs) { return lhs > rhs; });
+```
 
 ### [Lambda init captures](https://isocpp.org/wiki/faq/cpp14-language#lambda-captures)
 
 Lambda captures can have explicit initializers, which can be used to declare wholly new variables rather than only capturing existing ones: **neutralcode**
 
-    [x = 42, y = "foo"] { ... }  // x is an int, and y is a const char*
+```C++
+[x = 42, y = "foo"] { ... }  // x is an int, and y is a const char*
+```
 
 This syntax doesn't allow the type to be specified; instead, it's deduced using the rules for `auto` variables.
 
@@ -1292,10 +1394,12 @@ See _below_.
 
 When declaring a tuple, struct, or array using `auto`, you can specify names for the individual elements instead of a name for the whole object; these names are called "structured bindings", and the whole declaration is called a "structured binding declaration". This syntax provides no way of specifying the type of either the enclosing object or the individual names: **neutralcode**
 
-    auto [iter, success] = my_map.insert({key, value});
-    if (!success) {
-      iter->second = value;
-    }
+```C++
+auto [iter, success] = my_map.insert({key, value});
+if (!success) {
+  iter->second = value;
+}
+```
 
 The `auto` can also be qualified with `const`, `&`, and `&&`, but note that these qualifiers technically apply to the anonymous tuple/struct/array, rather than the individual bindings. The rules that determine the types of the bindings are quite complex; the results tend to be unsurprising, except that the binding types typically won't be references even if the declaration declares a reference (but they will usually behave like references anyway).
 
@@ -1309,8 +1413,10 @@ C++ code is usually clearer when types are explicit, especially when type deduct
 
 **badcode**
 
-    auto foo = x.add_foo();
-    auto i = y.Find(key);
+```C++
+auto foo = x.add_foo();
+auto i = y.Find(key);
+```
 
 it may not be obvious what the resulting types are if the type of `y` isn't very well known, or if `y` was declared many lines earlier.
 
@@ -1332,27 +1438,33 @@ For local variables, you can use type deduction to make the code clearer by elim
 
 **neutralcode**
 
-    std::unique_ptr<WidgetWithBellsAndWhistles> widget =
-        std::make_unique<WidgetWithBellsAndWhistles>(arg1, arg2);
-    absl::flat_hash_map<std::string,
-                        std::unique_ptr<WidgetWithBellsAndWhistles>>::const_iterator
-        it = my_map_.find(key);
-    std::array<int, 6> numbers = {4, 8, 15, 16, 23, 42};
+```C++
+std::unique_ptr<WidgetWithBellsAndWhistles> widget =
+    std::make_unique<WidgetWithBellsAndWhistles>(arg1, arg2);
+absl::flat_hash_map<std::string,
+                    std::unique_ptr<WidgetWithBellsAndWhistles>>::const_iterator
+    it = my_map_.find(key);
+std::array<int, 6> numbers = {4, 8, 15, 16, 23, 42};
+```
 
 **goodcode**
 
-    auto widget = std::make_unique<WidgetWithBellsAndWhistles>(arg1, arg2);
-    auto it = my_map_.find(key);
-    std::array numbers = {4, 8, 15, 16, 23, 42};
+```C++
+auto widget = std::make_unique<WidgetWithBellsAndWhistles>(arg1, arg2);
+auto it = my_map_.find(key);
+std::array numbers = {4, 8, 15, 16, 23, 42};
+```
 
 Types sometimes contain a mixture of useful information and boilerplate, such as `it` in the example above: it's obvious that the type is an iterator, and in many contexts the container type and even the key type aren't relevant, but the type of the values is probably useful. In such situations, it's often possible to define local variables with explicit types that convey the relevant information:
 
 **goodcode**
 
-    if (auto it = my_map_.find(key); it != my_map_.end()) {
-      WidgetWithBellsAndWhistles& widget = *it->second;
-      // Do stuff with `widget`
-    }
+```C++
+if (auto it = my_map_.find(key); it != my_map_.end()) {
+  WidgetWithBellsAndWhistles& widget = *it->second;
+  // Do stuff with `widget`
+}
+```
 
 If the type is a template instance, and the parameters are boilerplate but the template itself is informative, you can use class template argument deduction to suppress the boilerplate. However, cases where this actually provides a meaningful benefit are quite rare. Note that class template argument deduction is also subject to a _separate style rule_.
 
@@ -1376,7 +1488,9 @@ Unlike other forms of type deduction, structured bindings can actually give the 
 
 If the object being bound is a struct, it may sometimes be helpful to provide names that are more specific to your usage, but keep in mind that this may also mean the names are less recognizable to your reader than the field names. We recommend using a comment to indicate the name of the underlying field, if it doesn't match the name of the binding, using the same syntax as for function parameter comments:
 
-    auto [/*field_name1=*/bound_name1, /*field_name2=*/bound_name2] = ...
+```C++
+auto [/*field_name1=*/bound_name1, /*field_name2=*/bound_name2] = ...
+```
 
 As with function parameter comments, this can enable tools to detect if you get the order of the fields wrong.
 
@@ -1388,7 +1502,9 @@ Use class template argument deduction only with templates that have explicitly o
 
 **neutralcode**
 
-    std::array a = {1, 2, 3};  // `a` is a std::array<int, 3>
+```C++
+std::array a = {1, 2, 3};  // `a` is a std::array<int, 3>
+```
 
 The compiler deduces the arguments from the initializer using the template's "deduction guides", which can be explicit or implicit.
 
@@ -1396,10 +1512,12 @@ Explicit deduction guides look like function declarations with trailing return t
 
 **neutralcode**
 
-    namespace std {
-    template <class T, class... U>
-    array(T, U...) -> std::array<T, 1 + sizeof...(U)>;
-    }
+```C++
+namespace std {
+template <class T, class... U>
+array(T, U...) -> std::array<T, 1 + sizeof...(U)>;
+}
+```
 
 Constructors in a primary template (as opposed to a template specialization) also implicitly define deduction guides.
 
@@ -1423,17 +1541,19 @@ Use designated initializers only in their C++20-compliant form.
 
 **neutralcode**
 
-      struct Point {
-        float x = 0.0;
-        float y = 0.0;
-        float z = 0.0;
-      };
+```C++
+  struct Point {
+    float x = 0.0;
+    float y = 0.0;
+    float z = 0.0;
+  };
 
-      Point p = {
-        .x = 1.0,
-        .y = 2.0,
-        // z will be 0.0
-      };
+  Point p = {
+    .x = 1.0,
+    .y = 2.0,
+    // z will be 0.0
+  };
+```
 
 The explicitly listed fields will be initialized as specified, and others will be initialized in the same way they would be in a traditional aggregate initialization expression like `Point{1.0, 2.0}`.
 
@@ -1451,43 +1571,53 @@ Use lambda expressions where appropriate. Prefer explicit captures when the lamb
 
 Lambda expressions are a concise way of creating anonymous function objects. They're often useful when passing functions as arguments. For example:
 
-    std::sort(v.begin(), v.end(), [](int x, int y) {
-      return Weight(x) < Weight(y);
-    });
+```C++
+std::sort(v.begin(), v.end(), [](int x, int y) {
+  return Weight(x) < Weight(y);
+});
+```
 
 They further allow capturing variables from the enclosing scope either explicitly by name, or implicitly using a default capture. Explicit captures require each variable to be listed, as either a value or reference capture:
 
-    int weight = 3;
-    int sum = 0;
-    // Captures `weight` by value and `sum` by reference.
-    std::for_each(v.begin(), v.end(), [weight, &sum](int x) {
-      sum += weight * x;
-    });
+```C++
+int weight = 3;
+int sum = 0;
+// Captures `weight` by value and `sum` by reference.
+std::for_each(v.begin(), v.end(), [weight, &sum](int x) {
+  sum += weight * x;
+});
+```
 
 Default captures implicitly capture any variable referenced in the lambda body, including `this` if any members are used:
 
-    const std::vector<int> lookup_table = ...;
-    std::vector<int> indices = ...;
-    // Captures `lookup_table` by reference, sorts `indices` by the value
-    // of the associated element in `lookup_table`.
-    std::sort(indices.begin(), indices.end(), [&](int a, int b) {
-      return lookup_table[a] < lookup_table[b];
-    });
+```C++
+const std::vector<int> lookup_table = ...;
+std::vector<int> indices = ...;
+// Captures `lookup_table` by reference, sorts `indices` by the value
+// of the associated element in `lookup_table`.
+std::sort(indices.begin(), indices.end(), [&](int a, int b) {
+  return lookup_table[a] < lookup_table[b];
+});
+```
 
 A variable capture can also have an explicit initializer, which can be used for capturing move-only variables by value, or for other situations not handled by ordinary reference or value captures:
 
-    std::unique_ptr<Foo> foo = ...;
-    [foo = std::move(foo)] () {
-      ...
-    }
+```C++
+std::unique_ptr<Foo> foo = ...;
+[foo = std::move(foo)] () {
+  ...
+}
+```
 
 Such captures (often called "init captures" or "generalized lambda captures") need not actually "capture" anything from the enclosing scope, or even have a name from the enclosing scope; this syntax is a fully general way to define members of a lambda object:
 
 **neutralcode**
 
-    [foo = std::vector<int>({1, 2, 3})] () {
-      ...
-    }
+```C++
+[foo = std::vector<int>({1, 2, 3})] () {
+  ...
+}
+```
 
 The type of a capture with an initializer is deduced using the same rules as `auto`.
 
@@ -1504,29 +1634,33 @@ The type of a capture with an initializer is deduced using the same rules as `au
 - Use lambda expressions where appropriate, with formatting as described _below_.
 - Prefer explicit captures if the lambda may escape the current scope. For example, instead of: **badcode**
 
-        {
-          Foo foo;
-          ...
-          executor->Schedule([&] { Frobnicate(foo); })
-          ...
-        }
-        // BAD! The fact that the lambda makes use of a reference to `foo` and
-        // possibly `this` (if `Frobnicate` is a member function) may not be
-        // apparent on a cursory inspection. If the lambda is invoked after
-        // the function returns, that would be bad, because both `foo`
-        // and the enclosing object could have been destroyed.
+```C++
+  {
+    Foo foo;
+    ...
+    executor->Schedule([&] { Frobnicate(foo); })
+    ...
+  }
+  // BAD! The fact that the lambda makes use of a reference to `foo` and
+  // possibly `this` (if `Frobnicate` is a member function) may not be
+  // apparent on a cursory inspection. If the lambda is invoked after
+  // the function returns, that would be bad, because both `foo`
+  // and the enclosing object could have been destroyed.
+```
 
 prefer to write:
 
-        {
-          Foo foo;
-          ...
-          executor->Schedule([&foo] { Frobnicate(foo); })
-          ...
-        }
-        // BETTER - The compile will fail if `Frobnicate` is a member
-        // function, and it's clearer that `foo` is dangerously captured by
-        // reference.
+```C++
+{
+  Foo foo;
+  ...
+  executor->Schedule([&foo] { Frobnicate(foo); })
+  ...
+}
+// BETTER - The compile will fail if `Frobnicate` is a member
+// function, and it's clearer that `foo` is dangerously captured by
+// reference.
+```
 
 - Use default capture by reference (`[&]`) only when the lifetime of the lambda is obviously shorter than any potential captures.
 - Use default capture by value (`[=]`) only as a means of binding a few variables for a short lambda, where the set of captured variables is obvious at a glance, and which does not result in capturing `this` implicitly. (That means that a lambda that appears in a non-static class member function and refers to non-static class members in its body must capture `this` explicitly or via `[&]`.) Prefer not to write long or complex lambdas with default capture by value.
@@ -1616,9 +1750,11 @@ Public aliases are for the benefit of an API's user, and should be clearly docum
 
 There are several ways to create names that are aliases of other entities:
 
-    typedef Foo Bar;
-    using Bar = Foo;
-    using other_namespace::Foo;
+```C++
+typedef Foo Bar;
+using Bar = Foo;
+using other_namespace::Foo;
+```
 
 In new code, `using` is preferable to `typedef`, because it provides a more consistent syntax with the rest of C++ and works with templates.
 
@@ -1642,69 +1778,79 @@ Don't put namespace aliases in your public API. (See also _Namespaces_).
 
 For example, these aliases document how they are intended to be used in client code:
 
-    namespace mynamespace {
-    // Used to store field measurements. DataPoint may change from Bar* to some internal type.
-    // Client code should treat it as an opaque pointer.
-    using DataPoint = ::foo::Bar*;
+```C++
+namespace mynamespace {
+// Used to store field measurements. DataPoint may change from Bar* to some internal type.
+// Client code should treat it as an opaque pointer.
+using DataPoint = ::foo::Bar*;
 
-    // A set of measurements. Just an alias for user convenience.
-    using TimeSeries = std::unordered_set<DataPoint, std::hash<DataPoint>, DataPointComparator>;
-    }  // namespace mynamespace
+// A set of measurements. Just an alias for user convenience.
+using TimeSeries = std::unordered_set<DataPoint, std::hash<DataPoint>, DataPointComparator>;
+}  // namespace mynamespace
+```
 
 These aliases don't document intended use, and half of them aren't meant for client use:
 
 **badcode**
 
-    namespace mynamespace {
-    // Bad: none of these say how they should be used.
-    using DataPoint = ::foo::Bar*;
-    using ::std::unordered_set;  // Bad: just for local convenience
-    using ::std::hash;           // Bad: just for local convenience
-    typedef unordered_set<DataPoint, hash<DataPoint>, DataPointComparator> TimeSeries;
-    }  // namespace mynamespace
+```C++
+namespace mynamespace {
+// Bad: none of these say how they should be used.
+using DataPoint = ::foo::Bar*;
+using ::std::unordered_set;  // Bad: just for local convenience
+using ::std::hash;           // Bad: just for local convenience
+typedef unordered_set<DataPoint, hash<DataPoint>, DataPointComparator> TimeSeries;
+}  // namespace mynamespace
+```
 
 However, local convenience aliases are fine in function definitions, `private` sections of classes, explicitly marked internal namespaces, and in `.cc` files:
 
-    // In a .cc file
-    using ::foo::Bar;
+```C++
+// In a .cc file
+using ::foo::Bar;
+```
 
 ## Switch Statements
 
 If not conditional on an enumerated value, switch statements should always have a `default` case (in the case of an enumerated value, the compiler will warn you if any values are not handled). If the default case should never execute, treat this as an error. For example:
 
-    switch (var) {
-      case 0: {
-        ...
-        break;
-      }
-      case 1: {
-        ...
-        break;
-      }
-      default: {
-        LOG(FATAL) << "Invalid value in switch statement: " << var;
-      }
-    }
+```C++
+switch (var) {
+  case 0: {
+    ...
+    break;
+  }
+  case 1: {
+    ...
+    break;
+  }
+  default: {
+    LOG(FATAL) << "Invalid value in switch statement: " << var;
+  }
+}
+```
 
 Fall-through from one case label to another must be annotated using the `[[fallthrough]];` attribute. `[[fallthrough]];` should be placed at a point of execution where a fall-through to the next case label occurs. A common exception is consecutive case labels without intervening code, in which case no annotation is needed.
 
-    switch (x) {
-      case 41:  // No annotation needed here.
-      case 43:
-        if (dont_be_picky) {
-          // Use this instead of or along with annotations in comments.
-          [[fallthrough]];
-        } else {
-          CloseButNoCigar();
-          break;
-        }
-      case 42:
-        DoSomethingSpecial();
-        [[fallthrough]];
-      default:
-        DoSomethingGeneric();
-        break;
+```C++
+switch (x) {
+  case 41:  // No annotation needed here.
+  case 43:
+    if (dont_be_picky) {
+      // Use this instead of or along with annotations in comments.
+      [[fallthrough]];
+    } else {
+      CloseButNoCigar();
+      break;
     }
+  case 42:
+    DoSomethingSpecial();
+    [[fallthrough]];
+  default:
+    DoSomethingGeneric();
+    break;
+}
+```
 
 # Inclusive Language
 
@@ -1722,41 +1868,45 @@ Optimize for readability using names that would be clear even to people on a dif
 
 Use names that describe the purpose or intent of the object. Do not worry about saving horizontal space as it is far more important to make your code immediately understandable by a new reader. Minimize the use of abbreviations that would likely be unknown to someone outside your project (especially acronyms and initialisms). Do not abbreviate by deleting letters within a word. As a rule of thumb, an abbreviation is probably OK if it's listed in Wikipedia. Generally speaking, descriptiveness should be proportional to the name's scope of visibility. For example, `n` may be a fine name within a 5-line function, but within the scope of a class, it's likely too vague.
 
-    class MyClass {
-     public:
-      int CountFooErrors(const std::vector<Foo>& foos) {
-        int n = 0;  // Clear meaning given limited scope and context
-        for (const auto& foo : foos) {
-          ...
-          ++n;
-        }
-        return n;
-      }
-      void DoSomethingImportant() {
-        std::string fqdn = ...;  // Well-known abbreviation for Fully Qualified Domain Name
-      }
-     private:
-      const int kMaxAllowedConnections = ...;  // Clear meaning within context
-    };
+```C++
+class MyClass {
+ public:
+  int CountFooErrors(const std::vector<Foo>& foos) {
+    int n = 0;  // Clear meaning given limited scope and context
+    for (const auto& foo : foos) {
+      ...
+      ++n;
+    }
+    return n;
+  }
+  void DoSomethingImportant() {
+    std::string fqdn = ...;  // Well-known abbreviation for Fully Qualified Domain Name
+  }
+ private:
+  const int kMaxAllowedConnections = ...;  // Clear meaning within context
+};
+```
 
 **badcode**
 
-    class MyClass {
-     public:
-      int CountFooErrors(const std::vector<Foo>& foos) {
-        int total_number_of_foo_errors = 0;  // Overly verbose given limited scope and context
-        for (int foo_index = 0; foo_index < foos.size(); ++foo_index) {  // Use idiomatic `i`
-          ...
-          ++total_number_of_foo_errors;
-        }
-        return total_number_of_foo_errors;
-      }
-      void DoSomethingImportant() {
-        int cstmr_id = ...;  // Deletes internal letters
-      }
-     private:
-      const int kNum = ...;  // Unclear meaning within broad scope
-    };
+```C++
+class MyClass {
+ public:
+  int CountFooErrors(const std::vector<Foo>& foos) {
+    int total_number_of_foo_errors = 0;  // Overly verbose given limited scope and context
+    for (int foo_index = 0; foo_index < foos.size(); ++foo_index) {  // Use idiomatic `i`
+      ...
+      ++total_number_of_foo_errors;
+    }
+    return total_number_of_foo_errors;
+  }
+  void DoSomethingImportant() {
+    int cstmr_id = ...;  // Deletes internal letters
+  }
+ private:
+  const int kNum = ...;  // Unclear meaning within broad scope
+};
+```
 
 Note that certain universally-known abbreviations are OK, such as `i` for an iteration variable and `T` for a template parameter.
 
@@ -1787,19 +1937,21 @@ Type names start with a capital letter and have a capital letter for each new wo
 
 The names of all types — classes, structs, type aliases, enums, and type template parameters — have the same naming convention. Type names should start with a capital letter and have a capital letter for each new word. No underscores. For example:
 
-    // classes and structs
-    class UrlTable { ...
-    class UrlTableTester { ...
-    struct UrlTableProperties { ...
+```C++
+// classes and structs
+class UrlTable { ...
+class UrlTableTester { ...
+struct UrlTableProperties { ...
 
-    // typedefs
-    typedef hash_map<UrlTableProperties *, std::string> PropertiesMap;
+// typedefs
+typedef hash_map<UrlTableProperties *, std::string> PropertiesMap;
 
-    // using aliases
-    using PropertiesMap = hash_map<UrlTableProperties *, std::string>;
+// using aliases
+using PropertiesMap = hash_map<UrlTableProperties *, std::string>;
 
-    // enums
-    enum class UrlTableError { ...
+// enums
+enum class UrlTableError { ...
+```
 
 ## Variable Names
 
@@ -1809,32 +1961,40 @@ The names of variables (including function parameters) and data members are `sna
 
 For example:
 
-    std::string table_name;  // OK - snake_case.
+```C++
+std::string table_name;  // OK - snake_case.
+```
 
 **badcode**
 
-    std::string tableName;   // Bad - mixed case.
+```C++
+std::string tableName;   // Bad - mixed case.
+```
 
 ### Class Data Members
 
 Data members of classes, both static and non-static, are named like ordinary nonmember variables, but with a trailing underscore.
 
-    class TableInfo {
-      ...
-     private:
-      std::string table_name_;  // OK - underscore at end.
-      static Pool<TableInfo>* pool_;  // OK.
-    };
+```C++
+class TableInfo {
+  ...
+ private:
+  std::string table_name_;  // OK - underscore at end.
+  static Pool<TableInfo>* pool_;  // OK.
+};
+```
 
 ### Struct Data Members
 
 Data members of structs, both static and non-static, are named like ordinary nonmember variables. They do not have the trailing underscores that data members in classes have.
 
-    struct UrlTableProperties {
-      std::string name;
-      int num_entries;
-      static Pool<UrlTableProperties>* pool;
-    };
+```C++
+struct UrlTableProperties {
+  std::string name;
+  int num_entries;
+  static Pool<UrlTableProperties>* pool;
+};
+```
 
 See [Structs vs. Classes](#Structs_vs._Classes) for a discussion of when to use a struct versus a class.
 
@@ -1842,25 +2002,31 @@ See [Structs vs. Classes](#Structs_vs._Classes) for a discussion of when to use 
 
 Variables declared `constexpr` or `const`, and whose value is fixed for the duration of the program, are named with a leading "k" followed by mixed case. Underscores can be used as separators in the rare cases where capitalization cannot be used for separation. For example:
 
-    const int kDaysInAWeek = 7;
-    const int kAndroid8_0_0 = 24;  // Android 8.0.0
+```C++
+const int kDaysInAWeek = 7;
+const int kAndroid8_0_0 = 24;  // Android 8.0.0
+```
 
 All such variables with static storage duration (i.e., statics and globals, see [Storage Duration](http://en.cppreference.com/w/cpp/language/storage_duration#Storage_duration) for details) should be named this way. This convention is optional for variables of other storage classes, e.g., automatic variables; otherwise the usual variable naming rules apply. For example:
 
-    void ComputeFoo(absl::string_view suffix) {
-      // Either of these is acceptable.
-      const absl::string_view kPrefix = "prefix";
-      const absl::string_view prefix = "prefix";
-      ...
-    }
+```C++
+void ComputeFoo(absl::string_view suffix) {
+  // Either of these is acceptable.
+  const absl::string_view kPrefix = "prefix";
+  const absl::string_view prefix = "prefix";
+  ...
+}
+```
 
 **badcode**
 
-    void ComputeFoo(absl::string_view suffix) {
-      // Bad - different invocations of ComputeFoo give kCombined different values.
-      const std::string kCombined = absl::StrCat(kPrefix, suffix);
-      ...
-    }
+```C++
+void ComputeFoo(absl::string_view suffix) {
+  // Bad - different invocations of ComputeFoo give kCombined different values.
+  const std::string kCombined = absl::StrCat(kPrefix, suffix);
+  ...
+}
+```
 
 ## Function Names
 
@@ -1868,9 +2034,11 @@ Regular functions have mixed case; accessors and mutators may be named like vari
 
 Ordinarily, functions should start with a capital letter and have a capital letter for each new word.
 
-    AddTableEntry()
-    DeleteUrl()
-    OpenFileOrDie()
+```C++
+AddTableEntry()
+DeleteUrl()
+OpenFileOrDie()
+```
 
 (The same naming rule applies to class- and namespace-scope constants that are exposed as part of an API and that are intended to look like functions, because the fact that they're objects rather than functions is an unimportant implementation detail.)
 
@@ -1892,19 +2060,23 @@ For `internal` namespaces, be wary of other code being added to the same `intern
 
 Enumerators (for both scoped and unscoped enums) should be named like _constants_, not like _macros_. That is, use `kEnumName` not `ENUM_NAME`.
 
-    enum class UrlTableError {
-      kOk = 0,
-      kOutOfMemory,
-      kMalformedInput,
-    };
+```C++
+enum class UrlTableError {
+  kOk = 0,
+  kOutOfMemory,
+  kMalformedInput,
+};
+```
 
 **badcode**
 
-    enum class AlternateUrlTableError {
-      OK = 0,
-      OUT_OF_MEMORY = 1,
-      MALFORMED_INPUT = 2,
-    };
+```C++
+enum class AlternateUrlTableError {
+  OK = 0,
+  OUT_OF_MEMORY = 1,
+  MALFORMED_INPUT = 2,
+};
+```
 
 Until January 2009, the style was to name enum values like _macros_. This caused problems with name collisions between enum values and macros. Hence, the change to prefer constant-style naming was put in place. New code should use constant-style naming.
 
@@ -1914,7 +2086,9 @@ You're not really going to _define a macro_, are you? If you do, they're like th
 
 Please see the _description of macros_; in general macros should _not_ be used. However, if they are absolutely needed, then they should be named with all capitals and underscores, and with a project-specific prefix.
 
-    #define MYPROJECT_ROUND(x) ...
+```C++
+#define MYPROJECT_ROUND(x) ...
+```
 
 ## Exceptions to Naming Rules
 
@@ -1970,15 +2144,17 @@ If you make significant changes to a file with an author line, consider deleting
 
 Every non-obvious class or struct declaration should have an accompanying comment that describes what it is for and how it should be used.
 
-    // Iterates over the contents of a GargantuanTable.
-    // Example:
-    //    std::unique_ptr<GargantuanTableIterator> iter = table->NewIterator();
-    //    for (iter->Seek("foo"); !iter->done(); iter->Next()) {
-    //      process(iter->key(), iter->value());
-    //    }
-    class GargantuanTableIterator {
-      ...
-    };
+```C++
+// Iterates over the contents of a GargantuanTable.
+// Example:
+//    std::unique_ptr<GargantuanTableIterator> iter = table->NewIterator();
+//    for (iter->Seek("foo"); !iter->done(); iter->Next()) {
+//      process(iter->key(), iter->value());
+//    }
+class GargantuanTableIterator {
+  ...
+};
+```
 
 The class comment should provide the reader with enough information to know how and when to use the class, as well as any additional considerations necessary to correctly use the class. Document the synchronization assumptions the class makes, if any. If an instance of the class can be accessed by multiple threads, take extra care to document the rules and invariants surrounding multithreaded use.
 
@@ -2004,16 +2180,18 @@ Types of things to mention in comments at the function declaration:
 
 Here is an example:
 
-    // Returns an iterator for this table, positioned at the first entry
-    // lexically greater than or equal to `start_word`. If there is no
-    // such entry, returns a null pointer. The client must not use the
-    // iterator after the underlying GargantuanTable has been destroyed.
-    //
-    // This method is equivalent to:
-    //    std::unique_ptr<Iterator> iter = table->NewIterator();
-    //    iter->Seek(start_word);
-    //    return iter;
-    std::unique_ptr<Iterator> GetIterator(absl::string_view start_word) const;
+```C++
+// Returns an iterator for this table, positioned at the first entry
+// lexically greater than or equal to `start_word`. If there is no
+// such entry, returns a null pointer. The client must not use the
+// iterator after the underlying GargantuanTable has been destroyed.
+//
+// This method is equivalent to:
+//    std::unique_ptr<Iterator> iter = table->NewIterator();
+//    iter->Seek(start_word);
+//    return iter;
+std::unique_ptr<Iterator> GetIterator(absl::string_view start_word) const;
+```
 
 However, do not be unnecessarily verbose or state the completely obvious.
 
@@ -2037,17 +2215,21 @@ The purpose of each class data member (also called an instance variable or membe
 
 In particular, add comments to describe the existence and meaning of sentinel values, such as nullptr or -1, when they are not obvious. For example:
 
-    private:
-     // Used to bounds-check table accesses. -1 means
-     // that we don't yet know how many entries the table has.
-     int num_total_entries_;
+```C++
+private:
+ // Used to bounds-check table accesses. -1 means
+ // that we don't yet know how many entries the table has.
+ int num_total_entries_;
+```
 
 ### Global Variables
 
 All global variables should have a comment describing what they are, what they are used for, and (if unclear) why they need to be global. For example:
 
-    // The total number of test cases that we run through in this regression test.
-    const int kNumTestCases = 6;
+```C++
+// The total number of test cases that we run through in this regression test.
+const int kNumTestCases = 6;
+```
 
 ## Implementation Comments
 
@@ -2069,16 +2251,20 @@ When the meaning of a function argument is nonobvious, consider one of the follo
 
 Consider the following example: **badcode**
 
-    // What are these arguments?
-    const DecimalNumber product = CalculateProduct(values, 7, false, nullptr);
+```C++
+// What are these arguments?
+const DecimalNumber product = CalculateProduct(values, 7, false, nullptr);
+```
 
 versus:
 
-    ProductOptions options;
-    options.set_precision_decimals(7);
-    options.set_use_cache(ProductOptions::kDontUseCache);
-    const DecimalNumber product =
-        CalculateProduct(values, options, /*completion_callback=*/nullptr);
+```C++
+ProductOptions options;
+options.set_precision_decimals(7);
+options.set_use_cache(ProductOptions::kDontUseCache);
+const DecimalNumber product =
+    CalculateProduct(values, options, /*completion_callback=*/nullptr);
+```
 
 ### Don'ts
 
@@ -2086,23 +2272,29 @@ Do not state the obvious. In particular, don't literally describe what code does
 
 Compare this: **badcode**
 
-    // Find the element in the vector.  <-- Bad: obvious!
-    if (std::find(v.begin(), v.end(), element) != v.end()) {
-      Process(element);
-    }
+```C++
+// Find the element in the vector.  <-- Bad: obvious!
+if (std::find(v.begin(), v.end(), element) != v.end()) {
+  Process(element);
+}
+```
 
 To this:
 
-    // Process "element" unless it was already processed.
-    if (std::find(v.begin(), v.end(), element) != v.end()) {
-      Process(element);
-    }
+```C++
+// Process "element" unless it was already processed.
+if (std::find(v.begin(), v.end(), element) != v.end()) {
+  Process(element);
+}
+```
 
 Self-describing code doesn't need a comment. The comment from the example above would be obvious:
 
-    if (!IsAlreadyProcessed(element)) {
-      Process(element);
-    }
+```C++
+if (!IsAlreadyProcessed(element)) {
+  Process(element);
+}
+```
 
 ## Punctuation, Spelling, and Grammar
 
@@ -2118,10 +2310,12 @@ Use `TODO` comments for code that is temporary, a short-term solution, or good-e
 
 `TODO`s should include the string `TODO` in all caps, followed by the bug ID, name, e-mail address, or other identifier of the person or issue with the best context about the problem referenced by the `TODO`.
 
-    // TODO: bug 12345678 - Remove this after the 2047q4 compatibility window expires.
-    // TODO: example.com/my-design-doc - Manually fix up this code the next time it's touched.
-    // TODO(bug 12345678): Update this list after the Foo service is turned down.
-    // TODO(John): Use a "\*" here for concatenation operator.
+```C++
+// TODO: bug 12345678 - Remove this after the 2047q4 compatibility window expires.
+// TODO: example.com/my-design-doc - Manually fix up this code the next time it's touched.
+// TODO(bug 12345678): Update this list after the Foo service is turned down.
+// TODO(John): Use a "\*" here for concatenation operator.
+```
 
 If your `TODO` is of the form "At a future date do something" make sure that you either include a very specific date ("Fix by November 2005") or a very specific event ("Remove this code when all clients can handle XML responses.").
 
@@ -2178,28 +2372,34 @@ Return type on the same line as function name, parameters on the same line if th
 
 Functions look like this:
 
-    ReturnType ClassName::FunctionName(Type par_name1, Type par_name2) {
-      DoSomething();
-      ...
-    }
+```C++
+ReturnType ClassName::FunctionName(Type par_name1, Type par_name2) {
+  DoSomething();
+  ...
+}
+```
 
 If you have too much text to fit on one line:
 
-    ReturnType ClassName::ReallyLongFunctionName(Type par_name1, Type par_name2,
-                                                 Type par_name3) {
-      DoSomething();
-      ...
-    }
+```C++
+ReturnType ClassName::ReallyLongFunctionName(Type par_name1, Type par_name2,
+                                             Type par_name3) {
+  DoSomething();
+  ...
+}
+```
 
 or if you cannot fit even the first parameter:
 
-    ReturnType LongClassName::ReallyReallyReallyLongFunctionName(
-        Type par_name1,  // 4 space indent
-        Type par_name2,
-        Type par_name3) {
-      DoSomething();  // 2 space indent
-      ...
-    }
+```C++
+ReturnType LongClassName::ReallyReallyReallyLongFunctionName(
+    Type par_name1,  // 4 space indent
+    Type par_name2,
+    Type par_name3) {
+  DoSomething();  // 2 space indent
+  ...
+}
+```
 
 Some points to note:
 
@@ -2219,36 +2419,44 @@ Some points to note:
 
 Unused parameters that are obvious from context may be omitted:
 
-    class Foo {
-     public:
-      Foo(const Foo&) = delete;
-      Foo& operator=(const Foo&) = delete;
-    };
+```C++
+class Foo {
+ public:
+  Foo(const Foo&) = delete;
+  Foo& operator=(const Foo&) = delete;
+};
+```
 
 Unused parameters that might not be obvious should comment out the variable name in the function definition:
 
-    class Shape {
-     public:
-      virtual void Rotate(double radians) = 0;
-    };
+```C++
+class Shape {
+ public:
+  virtual void Rotate(double radians) = 0;
+};
 
-    class Circle : public Shape {
-     public:
-      void Rotate(double radians) override;
-    };
+class Circle : public Shape {
+ public:
+  void Rotate(double radians) override;
+};
 
-    void Circle::Rotate(double /*radians*/) {}
+void Circle::Rotate(double /*radians*/) {}
+```
 
 **badcode**
 
-    // Bad - if someone wants to implement later, it's not clear what the
-    // variable means.
-    void Circle::Rotate(double) {}
+```C++
+// Bad - if someone wants to implement later, it's not clear what the
+// variable means.
+void Circle::Rotate(double) {}
+```
 
 Attributes, and macros that expand to attributes, appear at the very beginning of the function declaration or definition, before the return type:
 
-      ABSL_ATTRIBUTE_NOINLINE void ExpensiveFunction();
-      [[nodiscard]] bool IsOk();
+```C++
+  ABSL_ATTRIBUTE_NOINLINE void ExpensiveFunction();
+  [[nodiscard]] bool IsOk();
+```
 
 ## Lambda Expressions
 
@@ -2256,17 +2464,21 @@ Format parameters and bodies as for any other function, and capture lists like o
 
 For by-reference captures, do not leave a space between the ampersand (`&`) and the variable name.
 
-    int x = 0;
-    auto x_plus_n = [&x](int n) -> int { return x + n; }
+```C++
+int x = 0;
+auto x_plus_n = [&x](int n) -> int { return x + n; }
+```
 
 Short lambdas may be written inline as function arguments.
 
-    absl::flat_hash_set<int> to_remove = {7, 8, 9};
-    std::vector<int> digits = {3, 9, 1, 8, 4, 7, 1};
-    digits.erase(std::remove_if(digits.begin(), digits.end(), [&to_remove](int i) {
-                   return to_remove.contains(i);
-                 }),
-                 digits.end());
+```C++
+absl::flat_hash_set<int> to_remove = {7, 8, 9};
+std::vector<int> digits = {3, 9, 1, 8, 4, 7, 1};
+digits.erase(std::remove_if(digits.begin(), digits.end(), [&to_remove](int i) {
+               return to_remove.contains(i);
+             }),
+             digits.end());
+```
 
 ## Floating-point Literals
 
@@ -2274,16 +2486,20 @@ Floating-point literals should always have a radix point, with digits on both si
 
 **badcode**
 
-    float f = 1.f;
-    long double ld = -.5L;
-    double d = 1248e6;
+```C++
+float f = 1.f;
+long double ld = -.5L;
+double d = 1248e6;
+```
 
 **goodcode**
 
-    float f = 1.0f;
-    float f2 = 1;   // Also OK
-    long double ld = -0.5L;
-    double d = 1248.0e6;
+```C++
+float f = 1.0f;
+float f2 = 1;   // Also OK
+long double ld = -0.5L;
+double d = 1248.0e6;
+```
 
 ## Function Calls
 
@@ -2291,45 +2507,57 @@ Either write the call all on a single line, wrap the arguments at the parenthesi
 
 Function calls have the following format:
 
-    bool result = DoSomething(argument1, argument2, argument3);
+```C++
+bool result = DoSomething(argument1, argument2, argument3);
+```
 
 If the arguments do not all fit on one line, they should be broken up onto multiple lines, with each subsequent line aligned with the first argument. Do not add spaces after the open paren or before the close paren:
 
-    bool result = DoSomething(averyveryveryverylongargument1,
-                              argument2, argument3);
+```C++
+bool result = DoSomething(averyveryveryverylongargument1,
+                          argument2, argument3);
+```
 
 Arguments may optionally all be placed on subsequent lines with a four space indent:
 
-    if (...) {
-      ...
-      ...
-      if (...) {
-        bool result = DoSomething(
-            argument1, argument2,  // 4 space indent
-            argument3, argument4);
-        ...
-      }
+```C++
+if (...) {
+  ...
+  ...
+  if (...) {
+    bool result = DoSomething(
+        argument1, argument2,  // 4 space indent
+        argument3, argument4);
+    ...
+  }
+```
 
 Put multiple arguments on a single line to reduce the number of lines necessary for calling a function unless there is a specific readability problem. Some find that formatting with strictly one argument on each line is more readable and simplifies editing of the arguments. However, we prioritize for the reader over the ease of editing arguments, and most readability problems are better addressed with the following techniques.
 
 If having multiple arguments in a single line decreases readability due to the complexity or confusing nature of the expressions that make up some arguments, try creating variables that capture those arguments in a descriptive name:
 
-    int my_heuristic = scores[x] * y + bases[x];
-    bool result = DoSomething(my_heuristic, x, y, z);
+```C++
+int my_heuristic = scores[x] * y + bases[x];
+bool result = DoSomething(my_heuristic, x, y, z);
+```
 
 Or put the confusing argument on its own line with an explanatory comment:
 
-    bool result = DoSomething(scores[x] * y + bases[x],  // Score heuristic.
-                              x, y, z);
+```C++
+bool result = DoSomething(scores[x] * y + bases[x],  // Score heuristic.
+                          x, y, z);
+```
 
 If there is still a case where one argument is significantly more readable on its own line, then put it on its own line. The decision should be specific to the argument which is made more readable rather than a general policy.
 
 Sometimes arguments form a structure that is important for readability. In those cases, feel free to format the arguments according to that structure:
 
-    // Transform the widget by a 3x3 matrix.
-    my_widget.Transform(x1, x2, x3,
-                        y1, y2, y3,
-                        z1, z2, z3);
+```C++
+// Transform the widget by a 3x3 matrix.
+my_widget.Transform(x1, x2, x3,
+                    y1, y2, y3,
+                    z1, z2, z3);
+```
 
 ## Braced Initializer List Format
 
@@ -2337,31 +2565,33 @@ Format a braced initializer list exactly like you would format a function call i
 
 If the braced list follows a name (e.g., a type or variable name), format as if the `{}` were the parentheses of a function call with that name. If there is no name, assume a zero-length name.
 
-    // Examples of braced init list on a single line.
-    return {foo, bar};
-    functioncall({foo, bar});
-    std::pair<int, int> p{foo, bar};
+```C++
+// Examples of braced init list on a single line.
+return {foo, bar};
+functioncall({foo, bar});
+std::pair<int, int> p{foo, bar};
 
-    // When you have to wrap.
-    SomeFunction(
-        {"assume a zero-length name before {"},
-        some_other_function_parameter);
-    SomeType variable{
-        some, other, values,
-        {"assume a zero-length name before {"},
-        SomeOtherType{
-            "Very long string requiring the surrounding breaks.",
-            some, other, values},
-        SomeOtherType{"Slightly shorter string",
-                      some, other, values}};
-    SomeType variable{
-        "This is too long to fit all in one line"};
-    MyType m = {  // Here, you could also break before {.
-        superlongvariablename1,
-        superlongvariablename2,
-        {short, interior, list},
-        {interiorwrappinglist,
-         interiorwrappinglist2}};
+// When you have to wrap.
+SomeFunction(
+    {"assume a zero-length name before {"},
+    some_other_function_parameter);
+SomeType variable{
+    some, other, values,
+    {"assume a zero-length name before {"},
+    SomeOtherType{
+        "Very long string requiring the surrounding breaks.",
+        some, other, values},
+    SomeOtherType{"Slightly shorter string",
+                  some, other, values}};
+SomeType variable{
+    "This is too long to fit all in one line"};
+MyType m = {  // Here, you could also break before {.
+    superlongvariablename1,
+    superlongvariablename2,
+    {short, interior, list},
+    {interiorwrappinglist,
+     interiorwrappinglist2}};
+```
 
 ## Looping and branching statements
 
@@ -2379,107 +2609,121 @@ For these statements:
 - Put any controlled statements inside blocks (i.e. use curly braces).
 - Inside the controlled blocks, put one line break immediately after the opening brace, and one line break immediately before the closing brace.
 
-  if (condition) { // Good - no spaces inside parentheses, space before brace.
-  DoOneThing(); // Good - two-space indent.
+```C++
+if (condition) {                   // Good - no spaces inside parentheses, space before brace.
+  DoOneThing();                    // Good - two-space indent.
   DoAnotherThing();
-  } else if (int a = f(); a != 3) { // Good - closing brace on new line, else on same line.
+} else if (int a = f(); a != 3) {  // Good - closing brace on new line, else on same line.
   DoAThirdThing(a);
-  } else {
+} else {
   DoNothing();
-  }
+}
 
-  // Good - the same rules apply to loops.
-  while (condition) {
+// Good - the same rules apply to loops.
+while (condition) {
   RepeatAThing();
-  }
+}
 
-  // Good - the same rules apply to loops.
-  do {
+// Good - the same rules apply to loops.
+do {
   RepeatAThing();
-  } while (condition);
+} while (condition);
 
-  // Good - the same rules apply to loops.
-  for (int i = 0; i < 10; ++i) {
+// Good - the same rules apply to loops.
+for (int i = 0; i < 10; ++i) {
   RepeatAThing();
-  }
+}
+```
 
 **badcode**
 
-    if(condition) {}                   // Bad - space missing after `if`.
-    else if ( condition ) {}           // Bad - space between the parentheses and the condition.
-    else if (condition){}              // Bad - space missing before `{`.
-    else if(condition){}               // Bad - multiple spaces missing.
+```C++
+if(condition) {}                   // Bad - space missing after `if`.
+else if ( condition ) {}           // Bad - space between the parentheses and the condition.
+else if (condition){}              // Bad - space missing before `{`.
+else if(condition){}               // Bad - multiple spaces missing.
 
-    for (int a = f();a == 10) {}       // Bad - space missing after the semicolon.
+for (int a = f();a == 10) {}       // Bad - space missing after the semicolon.
 
-    // Bad - `if ... else` statement does not have braces everywhere.
-    if (condition)
-      foo;
-    else {
-      bar;
-    }
+// Bad - `if ... else` statement does not have braces everywhere.
+if (condition)
+  foo;
+else {
+  bar;
+}
 
-    // Bad - `if` statement too long to omit braces.
-    if (condition)
-      // Comment
-      DoSomething();
+// Bad - `if` statement too long to omit braces.
+if (condition)
+  // Comment
+  DoSomething();
 
-    // Bad - `if` statement too long to omit braces.
-    if (condition1 &&
-        condition2)
-      DoSomething();
+// Bad - `if` statement too long to omit braces.
+if (condition1 &&
+    condition2)
+  DoSomething();
+```
 
 For historical reasons, we allow one exception to the above rules: the curly braces for the controlled statement or the line breaks inside the curly braces may be omitted if as a result the entire statement appears on either a single line (in which case there is a space between the closing parenthesis and the controlled statement) or on two lines (in which case there is a line break after the closing parenthesis and there are no braces).
 
 **neutralcode**
 
-    // OK - fits on one line.
-    if (x == kFoo) { return new Foo(); }
+```C++
+// OK - fits on one line.
+if (x == kFoo) { return new Foo(); }
 
-    // OK - braces are optional in this case.
-    if (x == kFoo) return new Foo();
+// OK - braces are optional in this case.
+if (x == kFoo) return new Foo();
 
-    // OK - condition fits on one line, body fits on another.
-    if (x == kBar)
-      Bar(arg1, arg2, arg3);
+// OK - condition fits on one line, body fits on another.
+if (x == kBar)
+  Bar(arg1, arg2, arg3);
+```
 
 This exception does not apply to multi-keyword statements like `if ... else` or `do ... while`.
 
 **badcode**
 
-    // Bad - `if ... else` statement is missing braces.
-    if (x) DoThis();
-    else DoThat();
+```C++
+// Bad - `if ... else` statement is missing braces.
+if (x) DoThis();
+else DoThat();
 
-    // Bad - `do ... while` statement is missing braces.
-    do DoThis();
-    while (x);
+// Bad - `do ... while` statement is missing braces.
+do DoThis();
+while (x);
+```
 
 Use this style only when the statement is brief, and consider that loops and branching statements with complex conditions or controlled statements may be more readable with curly braces. Some projects require curly braces always.
 
 `case` blocks in `switch` statements can have curly braces or not, depending on your preference. If you do include curly braces, they should be placed as shown below.
 
-    switch (var) {
-      case 0: {  // 2 space indent
-        Foo();   // 4 space indent
-        break;
-      }
-      default: {
-        Bar();
-      }
-    }
+```C++
+switch (var) {
+  case 0: {  // 2 space indent
+    Foo();   // 4 space indent
+    break;
+  }
+  default: {
+    Bar();
+  }
+}
+```
 
 Empty loop bodies should use either an empty pair of braces or `continue` with no braces, rather than a single semicolon.
 
-    while (condition) {}  // Good - `{}` indicates no logic.
-    while (condition) {
-      // Comments are okay, too
-    }
-    while (condition) continue;  // Good - `continue` indicates no logic.
+```C++
+while (condition) {}  // Good - `{}` indicates no logic.
+while (condition) {
+  // Comments are okay, too
+}
+while (condition) continue;  // Good - `continue` indicates no logic.
+```
 
 **badcode**
 
-    while (condition);  // Bad - looks like part of `do-while` loop.
+```C++
+while (condition);  // Bad - looks like part of `do-while` loop.
+```
 
 ## Pointer and Reference Expressions
 
@@ -2487,10 +2731,12 @@ No spaces around period or arrow. Pointer operators do not have trailing spaces.
 
 The following are examples of correctly-formatted pointer and reference expressions:
 
-    x = *p;
-    p = &x;
-    x = r.y;
-    x = r->y;
+```C++
+x = *p;
+p = &x;
+x = r.y;
+x = r->y;
+```
 
 Note that:
 
@@ -2499,31 +2745,37 @@ Note that:
 
 When referring to a pointer or reference (variable declarations or definitions, arguments, return types, template parameters, etc), you may place the space before or after the asterisk/ampersand. In the trailing-space style, the space is elided in some cases (template parameters, etc).
 
-    // These are fine, space preceding.
-    char *c;
-    const std::string &str;
-    int *GetPointer();
-    std::vector<char *>
+```C++
+// These are fine, space preceding.
+char *c;
+const std::string &str;
+int *GetPointer();
+std::vector<char *>
 
-    // These are fine, space following (or elided).
-    char* c;
-    const std::string& str;
-    int* GetPointer();
-    std::vector<char*>  // Note no space between '*' and '>'
+// These are fine, space following (or elided).
+char* c;
+const std::string& str;
+int* GetPointer();
+std::vector<char*>  // Note no space between '*' and '>'
+```
 
 You should do this consistently within a single file. When modifying an existing file, use the style in that file.
 
 It is allowed (if unusual) to declare multiple variables in the same declaration, but it is disallowed if any of those have pointer or reference decorations. Such declarations are easily misread.
 
-    // Fine if helpful for readability.
-    int x, y;
+```C++
+// Fine if helpful for readability.
+int x, y;
+```
 
 **badcode**
 
-    int x, *y;  // Disallowed - no & or * in multiple declaration
-    int* x, *y;  // Disallowed - no & or * in multiple declaration; inconsistent spacing
-    char * c;  // Bad - spaces on both sides of *
-    const std::string & str;  // Bad - spaces on both sides of &
+```C++
+int x, *y;  // Disallowed - no & or * in multiple declaration
+int* x, *y;  // Disallowed - no & or * in multiple declaration; inconsistent spacing
+char * c;  // Bad - spaces on both sides of *
+const std::string & str;  // Bad - spaces on both sides of &
+```
 
 ## Boolean Expressions
 
@@ -2531,11 +2783,13 @@ When you have a boolean expression that is longer than the _standard line length
 
 In this example, the logical AND operator is always at the end of the lines:
 
-    if (this_one_thing > this_other_thing &&
-        a_third_thing == a_fourth_thing &&
-        yet_another && last_one) {
-      ...
-    }
+```C++
+if (this_one_thing > this_other_thing &&
+    a_third_thing == a_fourth_thing &&
+    yet_another && last_one) {
+  ...
+}
+```
 
 Note that when the code wraps in this example, both of the `&&` logical AND operators are at the end of the line. This is more common in Google code, though wrapping all operators at the beginning of the line is also allowed. Feel free to insert extra parentheses judiciously because they can be very helpful in increasing readability when used appropriately, but be careful about overuse. Also note that you should always use the punctuation operators, such as `&&` and `~`, rather than the word operators, such as `and` and `compl`.
 
@@ -2545,36 +2799,46 @@ Do not needlessly surround the `return` expression with parentheses.
 
 Use parentheses in `return expr;` only where you would use them in `x = expr;`.
 
-    return result;                  // No parentheses in the simple case.
-    // Parentheses OK to make a complex expression more readable.
-    return (some_long_condition &&
-            another_condition);
+```C++
+return result;                  // No parentheses in the simple case.
+// Parentheses OK to make a complex expression more readable.
+return (some_long_condition &&
+        another_condition);
+```
 
 **badcode**
 
-    return (value);                // You wouldn't write var = (value);
-    return(result);                // return is not a function!
+```C++
+return (value);                // You wouldn't write var = (value);
+return(result);                // return is not a function!
+```
 
 ## Variable and Array Initialization
 
 You may choose between `=`, `()`, and `{}`; the following are all correct:
 
-    int x = 3;
-    int x(3);
-    int x{3};
-    std::string name = "Some Name";
-    std::string name("Some Name");
-    std::string name{"Some Name"};
+```C++
+int x = 3;
+int x(3);
+int x{3};
+std::string name = "Some Name";
+std::string name("Some Name");
+std::string name{"Some Name"};
+```
 
 Be careful when using a braced initialization list `{...}` on a type with an `std::initializer_list` constructor. A nonempty _braced-init-list_ prefers the `std::initializer_list` constructor whenever possible. Note that empty braces `{}` are special, and will call a default constructor if available. To force the non-`std::initializer_list` constructor, use parentheses instead of braces.
 
-    std::vector<int> v(100, 1);  // A vector containing 100 items: All 1s.
-    std::vector<int> v{100, 1};  // A vector containing 2 items: 100 and 1.
+```C++
+std::vector<int> v(100, 1);  // A vector containing 100 items: All 1s.
+std::vector<int> v{100, 1};  // A vector containing 2 items: 100 and 1.
+```
 
 Also, the brace form prevents narrowing of integral types. This can prevent some types of programming errors.
 
-    int pi(3.14);  // OK -- pi == 3.
-    int pi{3.14};  // Compile error: narrowing conversion.
+```C++
+int pi(3.14);  // OK -- pi == 3.
+int pi{3.14};  // Compile error: narrowing conversion.
+```
 
 ## Preprocessor Directives
 
@@ -2582,26 +2846,30 @@ The hash mark that starts a preprocessor directive should always be at the begin
 
 Even when preprocessor directives are within the body of indented code, the directives should start at the beginning of the line.
 
-    // Good - directives at beginning of line
-      if (lopsided_score) {
-    #if DISASTER_PENDING      // Correct -- Starts at beginning of line
-        DropEverything();
-    # if NOTIFY               // OK but not required -- Spaces after #
-        NotifyClient();
-    # endif
-    #endif
-        BackToNormal();
-      }
+```C++
+// Good - directives at beginning of line
+  if (lopsided_score) {
+#if DISASTER_PENDING      // Correct -- Starts at beginning of line
+    DropEverything();
+# if NOTIFY               // OK but not required -- Spaces after #
+    NotifyClient();
+# endif
+#endif
+    BackToNormal();
+  }
+```
 
 **badcode**
 
-    // Bad - indented directives
-      if (lopsided_score) {
-        #if DISASTER_PENDING  // Wrong!  The "#if" should be at beginning of line
-        DropEverything();
-        #endif                // Wrong!  Do not indent "#endif"
-        BackToNormal();
-      }
+```C++
+// Bad - indented directives
+  if (lopsided_score) {
+    #if DISASTER_PENDING  // Wrong!  The "#if" should be at beginning of line
+    DropEverything();
+    #endif                // Wrong!  Do not indent "#endif"
+    BackToNormal();
+  }
+```
 
 ## Class Format
 
@@ -2609,25 +2877,27 @@ Sections in `public`, `protected` and `private` order, each indented one space.
 
 The basic format for a class definition (lacking the comments, see _Class Comments_ for a discussion of what comments are needed) is:
 
-    class MyClass : public OtherClass {
-     public:      // Note the 1 space indent!
-      MyClass();  // Regular 2 space indent.
-      explicit MyClass(int var);
-      ~MyClass() {}
+```C++
+class MyClass : public OtherClass {
+ public:      // Note the 1 space indent!
+  MyClass();  // Regular 2 space indent.
+  explicit MyClass(int var);
+  ~MyClass() {}
 
-      void SomeFunction();
-      void SomeFunctionThatDoesNothing() {
-      }
+  void SomeFunction();
+  void SomeFunctionThatDoesNothing() {
+  }
 
-      void set_some_var(int var) { some_var_ = var; }
-      int some_var() const { return some_var_; }
+  void set_some_var(int var) { some_var_ = var; }
+  int some_var() const { return some_var_; }
 
-     private:
-      bool SomeInternalFunction();
+ private:
+  bool SomeInternalFunction();
 
-      int some_var_;
-      int some_other_var_;
-    };
+  int some_var_;
+  int some_other_var_;
+};
+```
 
 Things to note:
 
@@ -2644,30 +2914,32 @@ Constructor initializer lists can be all on one line or with subsequent lines in
 
 The acceptable formats for initializer lists are:
 
-    // When everything fits on one line:
-    MyClass::MyClass(int var) : some_var_(var) {
-      DoSomething();
-    }
+```C++
+// When everything fits on one line:
+MyClass::MyClass(int var) : some_var_(var) {
+  DoSomething();
+}
 
-    // If the signature and initializer list are not all on one line,
-    // you must wrap before the colon and indent 4 spaces:
-    MyClass::MyClass(int var)
-        : some_var_(var), some_other_var_(var + 1) {
-      DoSomething();
-    }
+// If the signature and initializer list are not all on one line,
+// you must wrap before the colon and indent 4 spaces:
+MyClass::MyClass(int var)
+    : some_var_(var), some_other_var_(var + 1) {
+  DoSomething();
+}
 
-    // When the list spans multiple lines, put each member on its own line
-    // and align them:
-    MyClass::MyClass(int var)
-        : some_var_(var),             // 4 space indent
-          some_other_var_(var + 1) {  // lined up
-      DoSomething();
-    }
+// When the list spans multiple lines, put each member on its own line
+// and align them:
+MyClass::MyClass(int var)
+    : some_var_(var),             // 4 space indent
+      some_other_var_(var + 1) {  // lined up
+  DoSomething();
+}
 
-    // As with any other code block, the close curly can be on the same
-    // line as the open curly, if it fits.
-    MyClass::MyClass(int var)
-        : some_var_(var) {}
+// As with any other code block, the close curly can be on the same
+// line as the open curly, if it fits.
+MyClass::MyClass(int var)
+    : some_var_(var) {}
+```
 
 ## Namespace Formatting
 
@@ -2675,26 +2947,30 @@ The contents of namespaces are not indented.
 
 _Namespaces_ do not add an extra level of indentation. For example, use:
 
-    namespace {
+```C++
+namespace {
 
-    void foo() {  // Correct.  No extra indentation within namespace.
-      ...
-    }
+void foo() {  // Correct.  No extra indentation within namespace.
+  ...
+}
 
-    }  // namespace
+}  // namespace
+```
 
 Do not indent within a namespace:
 
 **badcode**
 
-    namespace {
+```C++
+namespace {
 
-      // Wrong!  Indented when it should not be.
-      void foo() {
-        ...
-      }
+  // Wrong!  Indented when it should not be.
+  void foo() {
+    ...
+  }
 
-    }  // namespace
+}  // namespace
+```
 
 ## Horizontal Whitespace
 
@@ -2702,81 +2978,89 @@ Use of horizontal whitespace depends on location. Never put trailing whitespace 
 
 ### General
 
-    int i = 0;  // Two spaces before end-of-line comments.
+```C++
+int i = 0;  // Two spaces before end-of-line comments.
 
-    void f(bool b) {  // Open braces should always have a space before them.
-      ...
-    int i = 0;  // Semicolons usually have no space before them.
-    // Spaces inside braces for braced-init-list are optional.  If you use them,
-    // put them on both sides!
-    int x[] = { 0 };
-    int x[] = {0};
+void f(bool b) {  // Open braces should always have a space before them.
+  ...
+int i = 0;  // Semicolons usually have no space before them.
+// Spaces inside braces for braced-init-list are optional.  If you use them,
+// put them on both sides!
+int x[] = { 0 };
+int x[] = {0};
 
-    // Spaces around the colon in inheritance and initializer lists.
-    class Foo : public Bar {
-     public:
-      // For inline function implementations, put spaces between the braces
-      // and the implementation itself.
-      Foo(int b) : Bar(), baz_(b) {}  // No spaces inside empty braces.
-      void Reset() { baz_ = 0; }  // Spaces separating braces from implementation.
-      ...
+// Spaces around the colon in inheritance and initializer lists.
+class Foo : public Bar {
+ public:
+  // For inline function implementations, put spaces between the braces
+  // and the implementation itself.
+  Foo(int b) : Bar(), baz_(b) {}  // No spaces inside empty braces.
+  void Reset() { baz_ = 0; }  // Spaces separating braces from implementation.
+  ...
+```
 
 Adding trailing whitespace can cause extra work for others editing the same file, when they merge, as can removing existing trailing whitespace. So: Don't introduce trailing whitespace. Remove it if you're already changing that line, or do it in a separate clean-up operation (preferably when no-one else is working on the file).
 
 ### Loops and Conditionals
 
-    if (b) {          // Space after the keyword in conditions and loops.
-    } else {          // Spaces around else.
-    }
-    while (test) {}   // There is usually no space inside parentheses.
-    switch (i) {
-    for (int i = 0; i < 5; ++i) {
-    // Loops and conditions may have spaces inside parentheses, but this
-    // is rare.  Be consistent.
-    switch ( i ) {
-    if ( test ) {
-    for ( int i = 0; i < 5; ++i ) {
-    // For loops always have a space after the semicolon.  They may have a space
-    // before the semicolon, but this is rare.
-    for ( ; i < 5 ; ++i) {
-      ...
+```C++
+if (b) {          // Space after the keyword in conditions and loops.
+} else {          // Spaces around else.
+}
+while (test) {}   // There is usually no space inside parentheses.
+switch (i) {
+for (int i = 0; i < 5; ++i) {
+// Loops and conditions may have spaces inside parentheses, but this
+// is rare.  Be consistent.
+switch ( i ) {
+if ( test ) {
+for ( int i = 0; i < 5; ++i ) {
+// For loops always have a space after the semicolon.  They may have a space
+// before the semicolon, but this is rare.
+for ( ; i < 5 ; ++i) {
+  ...
 
-    // Range-based for loops always have a space before and after the colon.
-    for (auto x : counts) {
-      ...
-    }
-    switch (i) {
-      case 1:         // No space before colon in a switch case.
-        ...
-      case 2: break;  // Use a space after a colon if there's code after it.
+// Range-based for loops always have a space before and after the colon.
+for (auto x : counts) {
+  ...
+}
+switch (i) {
+  case 1:         // No space before colon in a switch case.
+    ...
+  case 2: break;  // Use a space after a colon if there's code after it.
+```
 
 ### Operators
 
-    // Assignment operators always have spaces around them.
-    x = 0;
+```C++
+// Assignment operators always have spaces around them.
+x = 0;
 
-    // Other binary operators usually have spaces around them, but it's
-    // OK to remove spaces around factors.  Parentheses should have no
-    // internal padding.
-    v = w * x + y / z;
-    v = w*x + y/z;
-    v = w * (x + z);
+// Other binary operators usually have spaces around them, but it's
+// OK to remove spaces around factors.  Parentheses should have no
+// internal padding.
+v = w * x + y / z;
+v = w*x + y/z;
+v = w * (x + z);
 
-    // No spaces separating unary operators and their arguments.
-    x = -5;
-    ++x;
-    if (x && !y)
-      ...
+// No spaces separating unary operators and their arguments.
+x = -5;
+++x;
+if (x && !y)
+  ...
+```
 
 ### Templates and Casts
 
-    // No spaces inside the angle brackets (< and >), before
-    // <, or between >( in a cast
-    std::vector<std::string> x;
-    y = static_cast<char*>(x);
+```C++
+// No spaces inside the angle brackets (< and >), before
+// <, or between >( in a cast
+std::vector<std::string> x;
+y = static_cast<char*>(x);
 
-    // Spaces between type and pointer are OK, but be consistent.
-    std::vector<char *> x;
+// Spaces between type and pointer are OK, but be consistent.
+std::vector<char *> x;
+```
 
 ## Vertical Whitespace
 
