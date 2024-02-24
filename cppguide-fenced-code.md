@@ -124,7 +124,7 @@ ABSL_DECLARE_FLAG(flag_in_b);
 - Forward declaring symbols from namespace `std::` yields undefined behavior.
 - It can be difficult to determine whether a forward declaration or a full `#include` is needed. Replacing an `#include` with a forward declaration can silently change the meaning of code:
 
-```C++
+  ```C++
   // b.h:
   struct B {};
   struct D : B {};
@@ -134,7 +134,7 @@ ABSL_DECLARE_FLAG(flag_in_b);
   void f(B*);
   void f(void*);
   void test(D* x) { f(x); }  // Calls f(B*)
-```
+  ```
 
 If the `#include` was replaced with forward decls for `B` and `D`, `test()` would call `f(void*)`.
 
@@ -261,7 +261,7 @@ Namespaces should be used as follows:
 - Terminate multi-line namespaces with comments as shown in the given examples.
 - Namespaces wrap the entire source file after includes, [gflags](https://gflags.github.io/gflags/) definitions/declarations and forward declarations of classes from other namespaces.
 
-```C++
+  ```C++
   // In the .h file
   namespace mynamespace {
 
@@ -274,9 +274,9 @@ Namespaces should be used as follows:
   };
 
   }  // namespace mynamespace
-```
+  ```
 
-```C++
+  ```C++
   // In the .cc file
   namespace mynamespace {
 
@@ -286,11 +286,11 @@ Namespaces should be used as follows:
   }
 
   }  // namespace mynamespace
-```
+  ```
 
-More complex `.cc` files might have additional details, like flags or using-declarations.
+  More complex `.cc` files might have additional details, like flags or using-declarations.
 
-```C++
+  ```C++
   #include "a.h"
 
   ABSL_FLAG(bool, someflag, false, "a flag");
@@ -302,7 +302,7 @@ More complex `.cc` files might have additional details, like flags or using-decl
   ...code for mynamespace...    // Code goes against the left margin.
 
   }  // namespace mynamespace
-```
+  ```
 
 - To place generated protocol message code in a namespace, use the `package` specifier in the `.proto` file. See [Protocol Buffer Packages](https://developers.google.com/protocol-buffers/docs/reference/cpp-generated#package) for details.
 - Do not declare anything in namespace `std`, including forward declarations of standard library classes. Declaring entities in namespace `std` is undefined behavior, i.e., not portable. To declare entities from the standard library, include the appropriate header file.
@@ -310,19 +310,19 @@ More complex `.cc` files might have additional details, like flags or using-decl
 
   **badcode**
 
-```C++
+  ```C++
   // Forbidden -- This pollutes the namespace.
   using namespace foo;
-```
+  ```
 
 - Do not use _Namespace aliases_ at namespace scope in header files except in explicitly marked internal-only namespaces, because anything imported into a namespace in a header file becomes part of the public API exported by that file.
 
-```C++
+  ```C++
   // Shorten access to some commonly used names in .cc files.
   namespace baz = ::foo::bar::baz;
-```
+  ```
 
-```C++
+  ```C++
   // Shorten access to some commonly used names (in a .h file).
   namespace librarian {
   namespace impl {  // Internal, not part of the API.
@@ -335,17 +335,17 @@ More complex `.cc` files might have additional details, like flags or using-decl
     ...
   }
   }  // namespace librarian
-```
+  ```
 
 - Do not use inline namespaces.
 - Use namespaces with "internal" in the name to document parts of an API that should not be mentioned by users of the API.
 
   **badcode**
 
-```C++
+  ```C++
   // We shouldn't use this internal name in non-absl code.
   using ::absl::container_internal::ImplementationDetail;
-```
+  ```
 
 ## Internal Linkage
 
@@ -1255,10 +1255,10 @@ Code should be 64-bit and 32-bit friendly. Bear in mind problems of printing, co
 - You may need to be careful with structure alignments, particularly for structures being stored on disk. Any class/structure with a `int64_t`/`uint64_t` member will by default end up being 8-byte aligned on a 64-bit system. If you have such structures being shared on disk between 32-bit and 64-bit code, you will need to ensure that they are packed the same on both architectures. Most compilers offer a way to alter structure alignment. For gcc, you can use `__attribute__((packed))`. MSVC offers `#pragma pack()` and `__declspec(align())`.
 - Use [braced-initialization](#Casting) as needed to create 64-bit constants. For example:
 
-```C++
+  ```C++
   int64_t my_value{0x123456789};
   uint64_t my_mask{uint64_t{3} << 48};
-```
+  ```
 
 ## Preprocessor Macros
 
@@ -1632,9 +1632,11 @@ The type of a capture with an initializer is deduced using the same rules as `au
 - It's possible for use of lambdas to get out of hand; very long nested anonymous functions can make code harder to understand.
 
 - Use lambda expressions where appropriate, with formatting as described _below_.
-- Prefer explicit captures if the lambda may escape the current scope. For example, instead of: **badcode**
+- Prefer explicit captures if the lambda may escape the current scope. For example, instead of:
 
-```C++
+  **badcode**
+
+  ```C++
   {
     Foo foo;
     ...
@@ -1646,21 +1648,21 @@ The type of a capture with an initializer is deduced using the same rules as `au
   // apparent on a cursory inspection. If the lambda is invoked after
   // the function returns, that would be bad, because both `foo`
   // and the enclosing object could have been destroyed.
-```
+  ```
 
-prefer to write:
+  prefer to write:
 
-```C++
-{
-  Foo foo;
-  ...
-  executor->Schedule([&foo] { Frobnicate(foo); })
-  ...
-}
-// BETTER - The compile will fail if `Frobnicate` is a member
-// function, and it's clearer that `foo` is dangerously captured by
-// reference.
-```
+  ```C++
+  {
+    Foo foo;
+    ...
+    executor->Schedule([&foo] { Frobnicate(foo); })
+    ...
+  }
+  // BETTER - The compile will fail if `Frobnicate` is a member
+  // function, and it's clearer that `foo` is dangerously captured by
+  // reference.
+  ```
 
 - Use default capture by reference (`[&]`) only when the lifetime of the lambda is obviously shorter than any potential captures.
 - Use default capture by value (`[=]`) only as a means of binding a few variables for a short lambda, where the set of captured variables is obvious at a glance, and which does not result in capturing `this` implicitly. (That means that a lambda that appears in a non-static class member function and refers to non-static class members in its body must capture `this` explicitly or via `[&]`.) Prefer not to write long or complex lambdas with default capture by value.

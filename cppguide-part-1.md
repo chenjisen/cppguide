@@ -122,7 +122,7 @@ ABSL_DECLARE_FLAG(flag_in_b);
 - Forward declaring symbols from namespace `std::` yields undefined behavior.
 - It can be difficult to determine whether a forward declaration or a full `#include` is needed. Replacing an `#include` with a forward declaration can silently change the meaning of code:
 
-```C++
+  ```C++
   // b.h:
   struct B {};
   struct D : B {};
@@ -132,7 +132,7 @@ ABSL_DECLARE_FLAG(flag_in_b);
   void f(B*);
   void f(void*);
   void test(D* x) { f(x); }  // Calls f(B*)
-```
+  ```
 
 If the `#include` was replaced with forward decls for `B` and `D`, `test()` would call `f(void*)`.
 
@@ -259,7 +259,7 @@ Namespaces should be used as follows:
 - Terminate multi-line namespaces with comments as shown in the given examples.
 - Namespaces wrap the entire source file after includes, [gflags](https://gflags.github.io/gflags/) definitions/declarations and forward declarations of classes from other namespaces.
 
-```C++
+  ```C++
   // In the .h file
   namespace mynamespace {
 
@@ -272,9 +272,9 @@ Namespaces should be used as follows:
   };
 
   }  // namespace mynamespace
-```
+  ```
 
-```C++
+  ```C++
   // In the .cc file
   namespace mynamespace {
 
@@ -284,11 +284,11 @@ Namespaces should be used as follows:
   }
 
   }  // namespace mynamespace
-```
+  ```
 
-More complex `.cc` files might have additional details, like flags or using-declarations.
+  More complex `.cc` files might have additional details, like flags or using-declarations.
 
-```C++
+  ```C++
   #include "a.h"
 
   ABSL_FLAG(bool, someflag, false, "a flag");
@@ -300,7 +300,7 @@ More complex `.cc` files might have additional details, like flags or using-decl
   ...code for mynamespace...    // Code goes against the left margin.
 
   }  // namespace mynamespace
-```
+  ```
 
 - To place generated protocol message code in a namespace, use the `package` specifier in the `.proto` file. See [Protocol Buffer Packages](https://developers.google.com/protocol-buffers/docs/reference/cpp-generated#package) for details.
 - Do not declare anything in namespace `std`, including forward declarations of standard library classes. Declaring entities in namespace `std` is undefined behavior, i.e., not portable. To declare entities from the standard library, include the appropriate header file.
@@ -308,19 +308,19 @@ More complex `.cc` files might have additional details, like flags or using-decl
 
   **badcode**
 
-```C++
+  ```C++
   // Forbidden -- This pollutes the namespace.
   using namespace foo;
-```
+  ```
 
 - Do not use _Namespace aliases_ at namespace scope in header files except in explicitly marked internal-only namespaces, because anything imported into a namespace in a header file becomes part of the public API exported by that file.
 
-```C++
+  ```C++
   // Shorten access to some commonly used names in .cc files.
   namespace baz = ::foo::bar::baz;
-```
+  ```
 
-```C++
+  ```C++
   // Shorten access to some commonly used names (in a .h file).
   namespace librarian {
   namespace impl {  // Internal, not part of the API.
@@ -333,17 +333,17 @@ More complex `.cc` files might have additional details, like flags or using-decl
     ...
   }
   }  // namespace librarian
-```
+  ```
 
 - Do not use inline namespaces.
 - Use namespaces with "internal" in the name to document parts of an API that should not be mentioned by users of the API.
 
   **badcode**
 
-```C++
+  ```C++
   // We shouldn't use this internal name in non-absl code.
   using ::absl::container_internal::ImplementationDetail;
-```
+  ```
 
 ## Internal Linkage
 

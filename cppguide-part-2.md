@@ -262,10 +262,10 @@ Code should be 64-bit and 32-bit friendly. Bear in mind problems of printing, co
 - You may need to be careful with structure alignments, particularly for structures being stored on disk. Any class/structure with a `int64_t`/`uint64_t` member will by default end up being 8-byte aligned on a 64-bit system. If you have such structures being shared on disk between 32-bit and 64-bit code, you will need to ensure that they are packed the same on both architectures. Most compilers offer a way to alter structure alignment. For gcc, you can use `__attribute__((packed))`. MSVC offers `#pragma pack()` and `__declspec(align())`.
 - Use [braced-initialization](#Casting) as needed to create 64-bit constants. For example:
 
-```C++
+  ```C++
   int64_t my_value{0x123456789};
   uint64_t my_mask{uint64_t{3} << 48};
-```
+  ```
 
 # Preprocessor Macros
 
@@ -639,9 +639,11 @@ The type of a capture with an initializer is deduced using the same rules as `au
 - It's possible for use of lambdas to get out of hand; very long nested anonymous functions can make code harder to understand.
 
 - Use lambda expressions where appropriate, with formatting as described _below_.
-- Prefer explicit captures if the lambda may escape the current scope. For example, instead of: **badcode**
+- Prefer explicit captures if the lambda may escape the current scope. For example, instead of:
 
-```C++
+  **badcode**
+
+  ```C++
   {
     Foo foo;
     ...
@@ -653,21 +655,21 @@ The type of a capture with an initializer is deduced using the same rules as `au
   // apparent on a cursory inspection. If the lambda is invoked after
   // the function returns, that would be bad, because both `foo`
   // and the enclosing object could have been destroyed.
-```
+  ```
 
-prefer to write:
+  prefer to write:
 
-```C++
-{
-  Foo foo;
-  ...
-  executor->Schedule([&foo] { Frobnicate(foo); })
-  ...
-}
-// BETTER - The compile will fail if `Frobnicate` is a member
-// function, and it's clearer that `foo` is dangerously captured by
-// reference.
-```
+  ```C++
+  {
+    Foo foo;
+    ...
+    executor->Schedule([&foo] { Frobnicate(foo); })
+    ...
+  }
+  // BETTER - The compile will fail if `Frobnicate` is a member
+  // function, and it's clearer that `foo` is dangerously captured by
+  // reference.
+  ```
 
 - Use default capture by reference (`[&]`) only when the lifetime of the lambda is obviously shorter than any potential captures.
 - Use default capture by value (`[=]`) only as a means of binding a few variables for a short lambda, where the set of captured variables is obvious at a glance, and which does not result in capturing `this` implicitly. (That means that a lambda that appears in a non-static class member function and refers to non-static class members in its body must capture `this` explicitly or via `[&]`.) Prefer not to write long or complex lambdas with default capture by value.
