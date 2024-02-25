@@ -28,7 +28,7 @@ Note that this guide is not a C++ tutorial: we assume that the reader is familia
 为什么我们有这个文件？
 Why do we have this document?
 
-我们认为本指南应该服务于几个核心目标。这些是构成所有单独规则基础的根本原因。通过将这些想法带到前台，我们希望能够开展讨论，并使我们更广泛的社区更清楚地了解制定这些规则的原因以及做出特定决定的原因。如果您了解每条规则的服务目标，那么每个人都应该更清楚何时可以放弃某条规则（有些可以放弃），以及需要什么样的论点或替代方案来更改指南中的规则。
+我们认为本指南应该服务于几个核心目标。这些是构成所有单独规则基础的根本*原因*。通过将这些想法带到前台，我们希望能够开展讨论，并使我们更广泛的社区更清楚地了解制定这些规则的原因以及做出特定决定的原因。如果您了解每条规则的服务目标，那么每个人都应该更清楚何时可以放弃某条规则（有些可以放弃），以及需要什么样的论点或替代方案来更改指南中的规则。
 There are a few core goals that we believe this guide should serve. These are the fundamental **why**s that underlie all of the individual rules. By bringing these ideas to the fore, we hope to ground discussions and make it clearer to our broader community why the rules are in place and why particular decisions have been made. If you understand what goals each rule is serving, it should be clearer to everyone when a rule may be waived (some can be), and what sort of argument or alternative would be necessary to change a rule in the guide.
 
 我们目前看到的风格指南的目标如下：
@@ -127,7 +127,7 @@ When a header declares inline functions or templates that clients of the header 
 在极少数情况下，设计为包含的文件不是独立的。这些通常旨在包含在不寻常的位置，例如另一个文件的中间。他们可能不使用*标头防护*，并且可能不包含其先决条件。使用 `.inc` 扩展名命名此类文件。谨慎使用，并尽可能选择独立的标头。
 There are rare cases where a file designed to be included is not self-contained. These are typically intended to be included at unusual locations, such as the middle of another file. They might not use _header guards_, and might not include their prerequisites. Name such files with the `.inc` extension. Use sparingly, and prefer self-contained headers when possible.
 
-## #define 守卫
+## #define 保护
 
 ## The #define Guard
 
@@ -253,28 +253,28 @@ All of a project's header files should be listed as descendants of the project's
 ```
 
 在 `dir/foo.cc` 或 `dir/foo_test.cc` 中，其主要目的是实现或测试 `dir2/foo2.h` 中的内容，按如下方式排序您的包含内容：
-In `dir/foo.cc` or `dir/foo_test.cc`, whose main purpose is to implement or test the stuff in `dir2/foo2.h`, order your includes as follows:
 
 1. `dir2/foo2.h`。
-1.  `dir2/foo2.h`.
 2. 空行
-2.  A blank line
 3. C 系统头文件（更准确地说：尖括号中带有 `.h` 扩展名的头文件），例如 `<unistd.h>` 、 `<stdlib.h>` 。
-3.  C system headers (more precisely: headers in angle brackets with the `.h` extension), e.g., `<unistd.h>`, `<stdlib.h>`.
 4. 空行
-4.  A blank line
 5. C++ 标准库头文件（不带文件扩展名），例如`<algorithm>`、`<cstddef>`。
-5.  C++ standard library headers (without file extension), e.g., `<algorithm>`, `<cstddef>`.
 6. 空行
+7. 其他库的`.h`文件。
+8. 空行
+9. 您项目的 `.h` 文件。
+
+In `dir/foo.cc` or `dir/foo_test.cc`, whose main purpose is to implement or test the stuff in `dir2/foo2.h`, order your includes as follows:
+
+1.  `dir2/foo2.h`.
+2.  A blank line
+3.  C system headers (more precisely: headers in angle brackets with the `.h` extension), e.g., `<unistd.h>`, `<stdlib.h>`.
+4.  A blank line
+5.  C++ standard library headers (without file extension), e.g., `<algorithm>`, `<cstddef>`.
 6.  A blank line
-
-- 其他库的`.h`文件。
-- Other libraries' `.h` files.
-- 一个空行
-- A blank line
-
-8. 您项目的 `.h` 文件。
-8.  Your project's `.h` files.
+7.  Other libraries' `.h` files.
+8.  A blank line
+9.  Your project's `.h` files.
 
 用一个空行分隔每个非空组。
 Separate each non-empty group with one blank line.
@@ -332,7 +332,7 @@ Sometimes, system-specific code needs conditional includes. Such code can put co
 
 ## Namespaces
 
-除少数例外，将代码放置在命名空间中。命名空间应该具有基于项目名称及其路径的唯一名称。不要使用*using-directives*（例如，`using namespace foo`）。不要使用内联命名空间。对于未命名的命名空间，请参阅*内部链接*。
+除少数例外，将代码放置在命名空间中。命名空间应该具有基于项目名称及其路径的唯一名称。不要使用 _using-directives_（例如，`using namespace foo`）。不要使用内联命名空间。对于未命名的命名空间，请参阅*内部链接*。
 With few exceptions, place code in a namespace. Namespaces should have unique names based on the project name, and possibly its path. Do not use _using-directives_ (e.g., `using namespace foo`). Do not use inline namespaces. For unnamed namespaces, see _Internal Linkage_.
 
 命名空间将全局范围细分为不同的命名范围，因此对于防止全局范围中的名称冲突非常有用。
@@ -1009,7 +1009,7 @@ Note that member variables in structs and classes have _different naming rules_.
 只要元素可以具有有意义的名称，就更愿意使用 `struct` 而不是一对或元组。
 Prefer to use a `struct` instead of a pair or a tuple whenever the elements can have meaningful names.
 
-虽然使用对和元组可以避免定义自定义类型的需要，可能会在编写代码时节省工作量，但在读取代码时，有意义的字段名称几乎总是比 `.first` 、 `.second` 或 `std::get<X>` 更清晰。虽然 C++14 引入 `std::get<Type>` 通过类型而不是索引（当类型唯一时）访问元组元素有时可以部分缓解这种情况，但字段名称通常比一种。
+虽然使用对和元组可以避免定义自定义类型的需要，可能会在编写代码时节省工作量，但在读取代码时，有意义的字段名称几乎总是比 `.first` 、 `.second` 或 `std::get<X>` 更清晰。虽然 C++14 引入 `std::get<Type>` 通过类型而不是索引（当类型唯一时）访问元组元素有时可以部分缓解这种情况，但字段名称通常比类型更清晰、信息更丰富。
 While using pairs and tuples can avoid the need to define a custom type, potentially saving work when _writing_ code, a meaningful field name will almost always be much clearer when _reading_ code than `.first`, `.second`, or `std::get<X>`. While C++14's introduction of `std::get<Type>` to access a tuple element by type rather than index (when the type is unique) can sometimes partially mitigate this, a field name is usually substantially clearer and more informative than a type.
 
 对和元组可能适用于通用代码，其中对或元组的元素没有特定含义。为了与现有代码或 API 进行互操作，也可能需要使用它们。
@@ -1125,23 +1125,25 @@ Group similar declarations together, placing `public` parts earlier.
 A class definition should usually start with a `public:` section, followed by `protected:`, then `private:`. Omit sections that would be empty.
 
 在每个部分中，更喜欢将类似类型的声明分组在一起，并且更喜欢以下顺序：
-Within each section, prefer grouping similar kinds of declarations together, and prefer the following order:
 
 1. 类型和类型别名（`typedef`、`using`、`enum`、嵌套结构和类以及 `friend` 类型）
-1.  Types and type aliases (`typedef`, `using`, `enum`, nested structs and classes, and `friend` types)
 2. （可选，仅适用于结构）非 `static` 数据成员
-2.  (Optionally, for structs only) non-`static` data members
 3. 静态常量
-3.  Static constants
 4. 工厂函数
-4.  Factory functions
 5. 构造函数和赋值运算符
-5.  Constructors and assignment operators
 6. 析构函数
-6.  Destructor
 7. 所有其他函数（`static`和非`static`成员函数，以及`friend`函数）
-7.  All other functions (`static` and non-`static` member functions, and `friend` functions)
 8. 所有其他数据成员（静态和非静态）
+
+Within each section, prefer grouping similar kinds of declarations together, and prefer the following order:
+
+1.  Types and type aliases (`typedef`, `using`, `enum`, nested structs and classes, and `friend` types)
+2.  (Optionally, for structs only) non-`static` data members
+3.  Static constants
+4.  Factory functions
+5.  Constructors and assignment operators
+6.  Destructor
+7.  All other functions (`static` and non-`static` member functions, and `friend` functions)
 8.  All other data members (static and non-static)
 
 不要将大型方法定义内联到类定义中。通常，只有琐碎或性能关键且非常短的方法可以内联定义。有关更多详细信息，请参阅*内联函数*。
@@ -1313,17 +1315,17 @@ There are various tricks and utilities that we use to make C++ code more robust,
 对于动态分配的对象，更喜欢拥有单一、固定的所有者。更喜欢使用智能指针转移所有权。
 Prefer to have single, fixed owners for dynamically allocated objects. Prefer to transfer ownership with smart pointers.
 
-`所有权` 是一种用于管理动态分配的内存（和其他资源）的簿记技术。动态分配对象的所有者是一个对象或函数，负责确保不再需要时将其删除。所有权有时可以共享，在这种情况下，最后一个所有者通常负责删除它。即使所有权不共享，也可以将其从一段代码转移到另一段代码。
+"所有权" 是一种用于管理动态分配的内存（和其他资源）的簿记技术。动态分配对象的所有者是一个对象或函数，负责确保不再需要时将其删除。所有权有时可以共享，在这种情况下，最后一个所有者通常负责删除它。即使所有权不共享，也可以将其从一段代码转移到另一段代码。
 "Ownership" is a bookkeeping technique for managing dynamically allocated memory (and other resources). The owner of a dynamically allocated object is an object or function that is responsible for ensuring that it is deleted when no longer needed. Ownership can sometimes be shared, in which case the last owner is typically responsible for deleting it. Even when ownership is not shared, it can be transferred from one piece of code to another.
 
-`智能` 指针是像指针一样工作的类，例如，通过重载 `*` 和 `->` 运算符。某些智能指针类型可用于自动进行所有权簿记，以确保满足这些职责。 [`std::unique_ptr`](http://en.cppreference.com/w/cpp/memory/unique_ptr) 是一种智能指针类型，表示动态分配对象的独占所有权；当 `std::unique_ptr` 超出范围时，该对象将被删除。它无法复制，但可以*移动*以表示所有权转移。 [`std::shared_ptr`](http://en.cppreference.com/w/cpp/memory/shared_ptr) 是一种智能指针类型，表示动态分配对象的共享所有权。 `std::shared_ptr` 可以被复制；该对象的所有权在所有副本之间共享，并且当最后一个 `std::shared_ptr` 被销毁时该对象被删除。
+"智能" 指针是像指针一样工作的类，例如，通过重载 `*` 和 `->` 运算符。某些智能指针类型可用于自动进行所有权簿记，以确保满足这些职责。 [`std::unique_ptr`](http://en.cppreference.com/w/cpp/memory/unique_ptr) 是一种智能指针类型，表示动态分配对象的独占所有权；当 `std::unique_ptr` 超出范围时，该对象将被删除。它无法复制，但可以*移动*以表示所有权转移。 [`std::shared_ptr`](http://en.cppreference.com/w/cpp/memory/shared_ptr) 是一种智能指针类型，表示动态分配对象的共享所有权。 `std::shared_ptr` 可以被复制；该对象的所有权在所有副本之间共享，并且当最后一个 `std::shared_ptr` 被销毁时该对象被删除。
 "Smart" pointers are classes that act like pointers, e.g., by overloading the `*` and `->` operators. Some smart pointer types can be used to automate ownership bookkeeping, to ensure these responsibilities are met. [`std::unique_ptr`](http://en.cppreference.com/w/cpp/memory/unique_ptr) is a smart pointer type which expresses exclusive ownership of a dynamically allocated object; the object is deleted when the `std::unique_ptr` goes out of scope. It cannot be copied, but can be _moved_ to represent ownership transfer. [`std::shared_ptr`](http://en.cppreference.com/w/cpp/memory/shared_ptr) is a smart pointer type that expresses shared ownership of a dynamically allocated object. `std::shared_ptr`s can be copied; ownership of the object is shared among all copies, and the object is deleted when the last `std::shared_ptr` is destroyed.
 
 - 如果没有某种所有权逻辑，实际上不可能管理动态分配的内存。
 - It's virtually impossible to manage dynamically allocated memory without some sort of ownership logic.
 - 转移对象的所有权可能比复制它更便宜（如果甚至可以复制）。
 - Transferring ownership of an object can be cheaper than copying it (if copying it is even possible).
-- 转移所有权比 `借用` 指针或引用更简单，因为它减少了协调两个用户之间对象生命周期的需要。
+- 转移所有权比 '借用' 指针或引用更简单，因为它减少了协调两个用户之间对象生命周期的需要。
 - Transferring ownership can be simpler than 'borrowing' a pointer or reference, because it reduces the need to coordinate the lifetime of the object between the two users.
 - 智能指针可以通过使所有权逻辑明确、自记录且明确来提高可读性。
 - Smart pointers can improve readability by making ownership logic explicit, self-documenting, and unambiguous.
@@ -1401,7 +1403,7 @@ When the token '&&' is applied to an unqualified template argument in a function
 - Rvalue references make it possible to implement types that are movable but not copyable, which can be useful for types that have no sensible definition of copying but where you might still want to pass them as function arguments, put them in containers, etc.
 - `std::move` 对于有效使用某些标准库类型是必要的，例如 `std::unique_ptr`。
 - `std::move` is necessary to make effective use of some standard-library types, such as `std::unique_ptr`.
-- 使用右值引用标记的*转发引用*，可以编写一个通用函数包装器，将其参数转发到另一个函数，并且无论其参数是否是临时对象和/或常量，都可以工作。这称为 `完美转发` 。
+- 使用右值引用标记的*转发引用*，可以编写一个通用函数包装器，将其参数转发到另一个函数，并且无论其参数是否是临时对象和/或常量，都可以工作。这称为 '完美转发' 。
 - _Forwarding references_ which use the rvalue reference token, make it possible to write a generic function wrapper that forwards its arguments to another function, and works whether or not its arguments are temporary objects and/or const. This is called 'perfect forwarding'.
 
 - 右值引用尚未被广泛理解。像引用折叠和转发引用的特殊扣除规则这样的规则有些模糊。
@@ -1414,7 +1416,7 @@ Do not use rvalue references (or apply the `&&` qualifier to methods), except as
 
 - 您可以使用它们来定义移动构造函数和移动赋值运算符（如*可复制和可移动类型*中所述）。
 - You may use them to define move constructors and move assignment operators (as described in _Copyable and Movable Types_).
-- 您可以使用它们来定义逻辑上 `消耗` `*this` 的 `&&` 限定方法，使其处于不可用或空状态。请注意，这仅适用于方法限定符（位于函数签名的右括号之后）；如果您想 `使用` 普通函数参数，最好按值传递它。
+- 您可以使用它们来定义逻辑上 "消耗" `*this` 的 `&&` 限定的方法，使其处于不可用或空状态。请注意，这仅适用于方法限定符（位于函数签名的右括号之后）；如果您想 `使用` 普通函数参数，最好按值传递它。
 - You may use them to define `&&`\-qualified methods that logically "consume" `*this`, leaving it in an unusable or empty state. Note that this applies only to method qualifiers (which come after the closing parenthesis of the function signature); if you want to "consume" an ordinary function parameter, prefer to pass it by value.
 - 您可以将转发引用与 [`std::forward`](http://en.cppreference.com/w/cpp/utility/forward) 结合使用，以支持完美转发。
 - You may use forwarding references in conjunction with [`std::forward`](http://en.cppreference.com/w/cpp/utility/forward), to support perfect forwarding.
@@ -1441,7 +1443,7 @@ Friends extend, but do not break, the encapsulation boundary of a class. In some
 我们不使用 C++ 异常。
 We do not use C++ exceptions.
 
-- 异常允许应用程序的更高级别决定如何处理深度嵌套函数中 `不可能发生` 的故障，而无需对错误代码进行模糊且容易出错的记录。
+- 异常允许应用程序的更高级别决定如何处理深度嵌套函数中 "不可能发生" 的故障，而无需对错误代码进行模糊且容易出错的记录。
 - Exceptions allow higher levels of an application to decide how to handle "can't happen" failures in deeply nested functions, without the obscuring and error-prone bookkeeping of error codes.
 
 - 大多数其他现代语言都使用异常。在 C++ 中使用它们将使其与其他人熟悉的 Python、Java 和 C++ 更加一致。
@@ -1449,7 +1451,7 @@ We do not use C++ exceptions.
 
 - 一些第三方 C++ 库使用异常，在内部关闭它们会使与这些库集成变得更加困难。
 - Some third-party C++ libraries use exceptions, and turning them off internally makes it harder to integrate with those libraries.
-- 异常是构造函数失败的唯一原因。我们可以使用工厂函数或 `Init()` 方法来模拟这一点，但它们分别需要堆分配或新的 `无效` 状态。
+- 异常是构造函数失败的唯一原因。我们可以使用工厂函数或 `Init()` 方法来模拟这一点，但它们分别需要堆分配或新的 "无效" 状态。
 - Exceptions are the only way for a constructor to fail. We can simulate this with a factory function or an `Init()` method, but these require heap allocation or a new "invalid" state, respectively.
 - 异常在测试框架中非常方便。
 - Exceptions are really handy in testing frameworks.
@@ -1458,7 +1460,7 @@ We do not use C++ exceptions.
 - When you add a `throw` statement to an existing function, you must examine all of its transitive callers. Either they must make at least the basic exception safety guarantee, or they must never catch the exception and be happy with the program terminating as a result. For instance, if `f()` calls `g()` calls `h()`, and `h` throws an exception that `f` catches, `g` has to be careful or it may not clean up properly.
 - 更一般地说，异常使得程序的控制流难以通过查看代码来评估：函数可能会在您不期望的地方返回。这会导致可维护性和调试困难。您可以通过一些有关如何以及在何处使用异常的规则来最小化此成本，但代价是开发人员需要了解和理解更多内容。
 - More generally, exceptions make the control flow of programs difficult to evaluate by looking at code: functions may return in places you don't expect. This causes maintainability and debugging difficulties. You can minimize this cost via some rules on how and where exceptions can be used, but at the cost of more that a developer needs to know and understand.
-- 异常安全需要 RAII 和不同的编码实践。需要大量的支持机制才能轻松编写正确的异常安全代码。此外，为了避免要求读者理解整个调用图，异常安全代码必须将写入持久状态的逻辑隔离到 `提交` 阶段。这既有好处也有成本（也许您被迫混淆代码以隔离提交）。允许例外将迫使我们始终支付这些成本，即使它们不值得。
+- 异常安全需要 RAII 和不同的编码实践。需要大量的支持机制才能轻松编写正确的异常安全代码。此外，为了避免要求读者理解整个调用图，异常安全代码必须将写入持久状态的逻辑隔离到 "提交" 阶段。这既有好处也有成本（也许您被迫混淆代码以隔离提交）。允许例外将迫使我们始终支付这些成本，即使它们不值得。
 - Exception safety requires both RAII and different coding practices. Lots of supporting machinery is needed to make writing correct exception-safe code easy. Further, to avoid requiring readers to understand the entire call graph, exception-safe code must isolate logic that writes to persistent state into a "commit" phase. This will have both benefits and costs (perhaps where you're forced to obfuscate code to isolate the commit). Allowing exceptions would force us to always pay those costs even when they're not worth it.
 - 打开异常会将数据添加到生成的每个二进制文件中，从而增加编译时间（可能略有增加）并可能增加地址空间压力。
 - Turning on exceptions adds data to each binary produced, increasing compile time (probably slightly) and possibly increasing address space pressure.
@@ -1477,7 +1479,7 @@ Our advice against using exceptions is not predicated on philosophical or moral 
 此禁令也适用于与异常处理相关的函数，例如 `std::exception_ptr` 和 `std::nested_exception` 。
 This prohibition also applies to exception handling related features such as `std::exception_ptr` and `std::nested_exception`.
 
-对于 Windows 代码，此规则有一个*例外*（无双关语意图）。
+对于 Windows 代码，此规则有一个例外。
 There is an _exception_ to this rule (no pun intended) for Windows code.
 
 ## `noexcept`
@@ -1575,7 +1577,7 @@ Code such as this usually breaks when additional subclasses are added to the cla
 不要手动实现类似 RTTI 的解决方法。反对 RTTI 的论点同样适用于像带有类型标签的类层次结构这样的解决方法。此外，变通办法掩盖了你的真实意图。
 Do not hand-implement an RTTI-like workaround. The arguments against RTTI apply just as much to workarounds like class hierarchies with type tags. Moreover, workarounds disguise your true intent.
 
-## 转换
+## 强制转换
 
 ## Casting
 
@@ -1614,7 +1616,7 @@ See the [RTTI section](#Run-Time_Type_Information__RTTI_) for guidance on the us
 
 ## Streams
 
-在适当的地方使用流，并坚持 `简单` 的用法。仅对表示值的类型进行流式重载 `<<` ，并且仅写入用户可见的值，而不写入任何实现细节。
+在适当的地方使用流，并坚持 "简单" 的用法。仅对表示值的类型进行流式重载 `<<` ，并且仅写入用户可见的值，而不写入任何实现细节。
 Use streams where appropriate, and stick to "simple" usages. Overload `<<` for streaming only for types representing values, and write only the user-visible value, not any implementation details.
 
 流是 C++ 中的标准 I/O 抽象，如标准头 `<iostream>` 所示。它们广泛用于 Google 代码中，主要用于调试日志记录和测试诊断。
@@ -1637,7 +1639,7 @@ Streams provide first-class support for console I/O via `std::cin`, `std::cout`,
 - 解决`<<`的许多重载对于编译器来说代价极高。当在大型代码库中普遍使用时，它可能会消耗多达 20% 的解析和语义分析时间。
 - Resolving the many overloads of `<<` is extremely costly for the compiler. When used pervasively in a large code base, it can consume as much as 20% of the parsing and semantic analysis time.
 
-仅当流是完成工作的最佳工具时才使用它们。当 I/O 是临时的、本地的、人类可读的并且针对其他开发人员而不是最终用户时，通常会出现这种情况。与您周围的代码以及整个代码库保持一致；如果有一个既定的工具可以解决您的问题，请改用该工具。特别是，对于诊断输出，日志记录库通常比 `std::cerr` 或 `std::clog` 更好，而 `absl/strings` 或类似库中的库通常比 `std::` 更好。字符串流`。
+仅当流是完成工作的最佳工具时才使用它们。当 I/O 是临时的、本地的、人类可读的并且针对其他开发人员而不是最终用户时，通常会出现这种情况。与您周围的代码以及整个代码库保持一致；如果有一个既定的工具可以解决您的问题，请改用该工具。特别是，对于诊断输出，日志记录库通常比 `std::cerr` 或 `std::clog` 更好，而 `absl/strings` 或类似库中的库通常比 `std::stringstream` 更好。
 Use streams only when they are the best tool for the job. This is typically the case when the I/O is ad-hoc, local, human-readable, and targeted at other developers rather than end-users. Be consistent with the code around you, and with the codebase as a whole; if there's an established tool for your problem, use that tool instead. In particular, logging libraries are usually a better choice than `std::cerr` or `std::clog` for diagnostic output, and the libraries in `absl/strings` or the equivalent are usually a better choice than `std::stringstream`.
 
 避免使用面向外部用户或处理不受信任数据的 I/O 流。相反，找到并使用适当的模板库来处理国际化、本地化和安全强化等问题。
@@ -1649,7 +1651,7 @@ If you do use streams, avoid the stateful parts of the streams API (other than e
 仅当您的类型表示一个值时，才将 `<<` 重载为您类型的流式运算符，并且 `<<` 会写出该值的人类可读字符串表示形式。避免在 `<<` 的输出中暴露实现细节；如果您需要打印对象内部结构以进行调试，请改用命名函数（名为 `DebugString()` 的方法是最常见的约定）。
 Overload `<<` as a streaming operator for your type only if your type represents a value, and `<<` writes out a human-readable string representation of that value. Avoid exposing implementation details in the output of `<<`; if you need to print object internals for debugging, use named functions instead (a method named `DebugString()` is the most common convention).
 
-## 预自增和预自减
+## 前自增和前自减
 
 ## Preincrement and Predecrement
 
@@ -1659,7 +1661,7 @@ Use the prefix form (`++i`) of the increment and decrement operators unless you 
 当变量递增（`++i` 或 `i++`）或递减（`--i` 或 `i--`）并且不使用表达式的值时，必须决定是否预递增（递减）或后递增（递减）。
 When a variable is incremented (`++i` or `i++`) or decremented (`--i` or `i--`) and the value of the expression is not used, one must decide whether to preincrement (decrement) or postincrement (decrement).
 
-后缀递增/递减表达式的计算结果为 `修改前的值` 。这可能会导致代码更紧凑但更难阅读。前缀形式通常更具可读性，效率绝不会降低，而且效率更高，因为它不需要像操作之前那样复制值。
+后缀递增/递减表达式的计算结果为 _修改前的值_ 。这可能会导致代码更紧凑但更难阅读。前缀形式通常更具可读性，效率绝不会降低，而且效率更高，因为它不需要像操作之前那样复制值。
 A postfix increment/decrement expression evaluates to the value _as it was before it was modified_. This can result in code that is more compact but harder to read. The prefix form is generally more readable, is never less efficient, and can be more efficient because it doesn't need to make a copy of the value as it was before the operation.
 
 在 C 语言中，即使不使用表达式值，特别是在 `for` 循环中，也形成了使用后递增的传统。
@@ -1704,7 +1706,7 @@ All of a class's `const` operations should be safe to invoke concurrently with e
 
 ### Where to put the const
 
-有些人更喜欢 `int const *foo` 的形式而不是 `const int* foo` 。他们认为这更具可读性，因为它更一致：它保留了 `const` 始终遵循它所描述的对象的规则。然而，这一一致性参数不适用于具有很少深度嵌套指针表达式的代码库，因为大多数 `const` 表达式只有一个 `const` ，并且它适用于基础值。在这种情况下，无法保持一致性。将 `const` 放在前面可以说更具可读性，因为它遵循英语将 `形容词` （ `const` ）放在 `名词` （ `int` ）之前。
+有些人更喜欢 `int const *foo` 的形式而不是 `const int* foo` 。他们认为这更具可读性，因为它更一致：它保留了 `const` 始终遵循它所描述的对象的规则。然而，这一一致性参数不适用于具有很少深度嵌套指针表达式的代码库，因为大多数 `const` 表达式只有一个 `const` ，并且它适用于基础值。在这种情况下，无法保持一致性。将 `const` 放在前面可以说更具可读性，因为它遵循英语将 "形容词" （ `const` ）放在 "名词" （ `int` ）之前。
 Some people favor the form `int const *foo` to `const int* foo`. They argue that this is more readable because it's more consistent: it keeps the rule that `const` always follows the object it's describing. However, this consistency argument doesn't apply in codebases with few deeply-nested pointer expressions since most `const` expressions have only one `const`, and it applies to the underlying value. In such cases, there's no consistency to maintain. Putting the `const` first is arguably more readable, since it follows English in putting the "adjective" (`const`) before the "noun" (`int`).
 
 也就是说，虽然我们鼓励将 `const` 放在第一位，但我们并不要求它。但要与你周围的代码保持一致！
@@ -1736,7 +1738,7 @@ Prematurely marking something as `constexpr` may cause migration problems if lat
 在 C++ 内置整数类型中，唯一使用的一种是 `int` 。如果程序需要不同大小的整数类型，请使用 `<cstdint>` 中的精确宽度整数类型，例如 `int16_t` 。如果您的值可能大于或等于 2^31，请使用 64 位类型，例如 `int64_t` 。请记住，即使您的值对于 `int` 来说不会太大，它也可能用于可能需要更大类型的中间计算。如有疑问，请选择较大的类型。
 Of the built-in C++ integer types, the only one used is `int`. If a program needs an integer type of a different size, use an exact-width integer type from `<cstdint>`, such as `int16_t`. If you have a value that could ever be greater than or equal to 2^31, use a 64-bit type such as `int64_t`. Keep in mind that even if your value won't ever be too large for an `int`, it may be used in intermediate calculations which may require a larger type. When in doubt, choose a larger type.
 
-C++ 没有指定像 `int` 这样的整数类型的精确大小。当代架构上常见的大小是 16 位 `short` ，32 位 `int` ，32 或 64 位 `long` ，以及 64 位 `long long` ，但不同的平台有不同的选择，特别是 `long` `。
+C++ 没有指定像 `int` 这样的整数类型的精确大小。当代架构上常见的大小是 16 位 `short` ，32 位 `int` ，32 或 64 位 `long` ，以及 64 位 `long long` ，但不同的平台有不同的选择，特别是 `long`。
 C++ does not specify exact sizes for the integer types like `int`. Common sizes on contemporary architectures are 16 bits for `short`, 32 bits for `int`, 32 or 64 bits for `long`, and 64 bits for `long long`, but different platforms make different choices, in particular for `long`.
 
 声明的统一性。
@@ -1824,7 +1826,7 @@ class WOMBAT_TYPE(Foo) {
 };
 ```
 
-幸运的是，宏在 C++ 中并不像在 C 中那样必要。不要使用宏来内联性能关键型代码，而是使用内联函数。不要使用宏来存储常量，而是使用 `const` 变量。不要使用宏来 `缩写` 长变量名，而是使用引用。不要使用宏来有条件地编译代码……好吧，根本不要这样做（当然，除了 `#define` 防护以防止头文件的双重包含）。它使测试变得更加困难。
+幸运的是，宏在 C++ 中并不像在 C 中那样必要。不要使用宏来内联性能关键型代码，而是使用内联函数。不要使用宏来存储常量，而是使用 `const` 变量。不要使用宏来 "缩写" 长变量名，而是使用引用。不要使用宏来有条件地编译代码……好吧，根本不要这样做（当然，除了 `#define` 防护以防止头文件的双重包含）。它使测试变得更加困难。
 Luckily, macros are not nearly as necessary in C++ as they are in C. Instead of using a macro to inline performance-critical code, use an inline function. Instead of using a macro to store a constant, use a `const` variable. Instead of using a macro to "abbreviate" a long variable name, use a reference. Instead of using a macro to conditionally compile code ... well, don't do that at all (except, of course, for the `#define` guards to prevent double inclusion of header files). It makes testing much more difficult.
 
 宏可以做其他技术无法完成的事情，并且您确实在代码库中看到它们，尤其是在较低级别的库中。它们的一些特殊功能（如字符串化、连接等）无法通过语言本身获得。但在使用宏之前，请仔细考虑是否有非宏方法可以达到相同的结果。如果您需要使用宏来定义接口，请联系您的项目负责人请求放弃此规则。
@@ -1902,7 +1904,10 @@ There are several contexts in which C++ allows (or even requires) types to be de
 
 ### [Function template argument deduction](https://en.cppreference.com/w/cpp/language/template_argument_deduction)
 
-A function template can be invoked without explicit template arguments. The compiler deduces those arguments from the types of the function arguments: **neutralcode**
+无需显式模板参数即可调用函数模板。编译器根据函数参数的类型推导这些参数：
+A function template can be invoked without explicit template arguments. The compiler deduces those arguments from the types of the function arguments:
+
+**neutralcode**
 
 ```C++
 template <typename T>
@@ -1915,7 +1920,10 @@ f(0);  // Invokes f<int>(0)
 
 ### [`auto` variable declarations](https://en.cppreference.com/w/cpp/language/auto)
 
-A variable declaration can use the `auto` keyword in place of the type. The compiler deduces the type from the variable's initializer, following the same rules as function template argument deduction with the same initializer (so long as you don't use curly braces instead of parentheses). **neutralcode**
+变量声明可以使用 `auto` 关键字来代替类型。编译器从变量的初始值设定项推导类型，遵循与具有相同初始值设定项的函数模板参数推导相同的规则（只要不使用花括号而不是括号）。
+A variable declaration can use the `auto` keyword in place of the type. The compiler deduces the type from the variable's initializer, following the same rules as function template argument deduction with the same initializer (so long as you don't use curly braces instead of parentheses).
+
+**neutralcode**
 
 ```C++
 auto a = 42;  // a is an int
@@ -1931,7 +1939,10 @@ auto d{42};   // d is an int, not a std::initializer_list<int>
 
 ### [Function return type deduction](https://en.cppreference.com/w/cpp/language/function#Return_type_deduction)
 
-`auto` (and `decltype(auto)`) can also be used in place of a function return type. The compiler deduces the return type from the `return` statements in the function body, following the same rules as for variable declarations: **neutralcode**
+`auto`（和 `decltype(auto)`）也可以用来代替函数返回类型。编译器从函数体中的 `return` 语句推导出返回类型，遵循与变量声明相同的规则：
+`auto` (and `decltype(auto)`) can also be used in place of a function return type. The compiler deduces the return type from the `return` statements in the function body, following the same rules as for variable declarations:
+
+**neutralcode**
 
 ```C++
 auto f() { return 0; }  // The return type of f is int
@@ -1940,11 +1951,14 @@ auto f() { return 0; }  // The return type of f is int
 _Lambda 表达式_ 返回类型可以用相同的方式推导，但这是通过省略返回类型来触发的，而不是通过显式的 `auto` 来触发。令人困惑的是，函数的尾随返回类型语法也在返回类型位置使用 `auto` ，但这并不依赖于类型推导；它只是显式返回类型的替代语法。
 _Lambda expression_ return types can be deduced in the same way, but this is triggered by omitting the return type, rather than by an explicit `auto`. Confusingly, _trailing return type_ syntax for functions also uses `auto` in the return-type position, but that doesn't rely on type deduction; it's just an alternate syntax for an explicit return type.
 
-### [通用 lambdas](https://isocpp.org/wiki/faq/cpp14-language#generic-lambdas)
+### [泛型 lambda](https://isocpp.org/wiki/faq/cpp14-language#generic-lambdas)
 
 ### [Generic lambdas](https://isocpp.org/wiki/faq/cpp14-language#generic-lambdas)
 
-A lambda expression can use the `auto` keyword in place of one or more of its parameter types. This causes the lambda's call operator to be a function template instead of an ordinary function, with a separate template parameter for each `auto` function parameter: **neutralcode**
+lambda 表达式可以使用 `auto` 关键字代替其一个或多个参数类型。这导致 lambda 的调用运算符成为函数模板而不是普通函数，每个 `auto` 函数参数都有一个单独的模板参数：
+A lambda expression can use the `auto` keyword in place of one or more of its parameter types. This causes the lambda's call operator to be a function template instead of an ordinary function, with a separate template parameter for each `auto` function parameter:
+
+**neutralcode**
 
 ```C++
 // Sort `vec` in decreasing order
@@ -1955,7 +1969,10 @@ std::sort(vec.begin(), vec.end(), [](auto lhs, auto rhs) { return lhs > rhs; });
 
 ### [Lambda init captures](https://isocpp.org/wiki/faq/cpp14-language#lambda-captures)
 
-Lambda captures can have explicit initializers, which can be used to declare wholly new variables rather than only capturing existing ones: **neutralcode**
+Lambda 捕获可以具有显式初始化程序，可用于声明全新的变量，而不仅仅是捕获现有变量：
+Lambda captures can have explicit initializers, which can be used to declare wholly new variables rather than only capturing existing ones:
+
+**neutralcode**
 
 ```C++
 [x = 42, y = "foo"] { ... }  // x is an int, and y is a const char*
@@ -1975,7 +1992,11 @@ See _below_.
 
 ### [Structured bindings](https://en.cppreference.com/w/cpp/language/structured_binding)
 
-When declaring a tuple, struct, or array using `auto`, you can specify names for the individual elements instead of a name for the whole object; these names are called "structured bindings", and the whole declaration is called a "structured binding declaration". This syntax provides no way of specifying the type of either the enclosing object or the individual names: **neutralcode**
+当使用 `auto` 声明元组、结构体或数组时，您可以指定单个元素的名称，而不是整个对象的名称；这些名称称为 "结构化绑定" ，整个声明称为 "结构化绑定声明" 。此语法无法指定封闭对象或单个名称的类型：
+
+When declaring a tuple, struct, or array using `auto`, you can specify names for the individual elements instead of a name for the whole object; these names are called "structured bindings", and the whole declaration is called a "structured binding declaration". This syntax provides no way of specifying the type of either the enclosing object or the individual names:
+
+**neutralcode**
 
 ```C++
 auto [iter, success] = my_map.insert({key, value});
@@ -2118,7 +2139,7 @@ As with function parameter comments, this can enable tools to detect if you get 
 仅对已明确选择支持它的模板使用类模板参数推导。
 Use class template argument deduction only with templates that have explicitly opted into supporting it.
 
-[类模板参数推导](https://en.cppreference.com/w/cpp/language/class_template_argument_deduction)（通常缩写为 `CTAD` ）当使用命名模板的类型声明变量并且模板参数时发生未提供列表（甚至没有空尖括号）：
+[类模板参数推导](https://en.cppreference.com/w/cpp/language/class_template_argument_deduction)（通常缩写为 "CTAD" ）当使用命名模板的类型声明变量并且模板参数时发生未提供列表（甚至没有空尖括号）：
 [Class template argument deduction](https://en.cppreference.com/w/cpp/language/class_template_argument_deduction) (often abbreviated "CTAD") occurs when a variable is declared with a type that names a template, and the template argument list is not provided (not even empty angle brackets):
 
 **neutralcode**
@@ -2127,7 +2148,7 @@ Use class template argument deduction only with templates that have explicitly o
 std::array a = {1, 2, 3};  // `a` is a std::array<int, 3>
 ```
 
-编译器使用模板的 `推导指南` 从初始值设定项推导参数，该 `推导指南` 可以是显式的，也可以是隐式的。
+编译器使用模板的 "推导指南" 从初始值设定项推导参数，该 "推导指南" 可以是显式的，也可以是隐式的。
 The compiler deduces the arguments from the initializer using the template's "deduction guides", which can be explicit or implicit.
 
 显式推导指南看起来像带有尾随返回类型的函数声明，只不过没有前导 `auto` ，并且函数名称是模板的名称。例如，上面的例子依赖于`std::array`的推导指南：
@@ -2255,7 +2276,7 @@ std::unique_ptr<Foo> foo = ...;
 }
 ```
 
-此类捕获（通常称为 `init captures` 或 `generalized lambda captures` ）实际上不需要从封闭范围中 `捕获` 任何内容，甚至不需要具有封闭范围中的名称；此语法是定义 lambda 对象成员的完全通用方法：
+此类捕获（通常称为"init 捕获"或"广义 lambda 捕获"）实际上不需要从封闭范围中"捕获"任何内容，甚至不需要具有封闭范围中的名称；此语法是定义 lambda 对象成员的完全通用方法：
 Such captures (often called "init captures" or "generalized lambda captures") need not actually "capture" anything from the enclosing scope, or even have a name from the enclosing scope; this syntax is a fully general way to define members of a lambda object:
 
 **neutralcode**
@@ -2360,7 +2381,7 @@ Template metaprogramming sometimes allows cleaner and easier-to-use interfaces t
 在使用模板元编程或其他复杂的模板技术之前请三思；考虑一下在你切换到另一个项目后，你的团队的普通成员是否能够很好地理解你的代码来维护它，或者非 C++ 程序员或随意浏览代码库的人是否能够理解错误消息或者跟踪他们想要调用的函数的流程。如果您使用递归模板实例化或类型列表或元函数或表达式模板，或者依赖 SFINAE 或 `sizeof` 技巧来检测函数重载解析，那么您很可能走得太远了。
 Think twice before using template metaprogramming or other complicated template techniques; think about whether the average member of your team will be able to understand your code well enough to maintain it after you switch to another project, or whether a non-C++ programmer or someone casually browsing the code base will be able to understand the error messages or trace the flow of a function they want to call. If you're using recursive template instantiations or type lists or metafunctions or expression templates, or relying on SFINAE or on the `sizeof` trick for detecting function overload resolution, then there's a good chance you've gone too far.
 
-如果您使用模板元编程，您应该付出相当大的努力来最小化和隔离复杂性。您应该尽可能将元编程隐藏为实现细节，以便面向用户的标头可读，并且您应该确保对棘手的代码进行了很好的注释。您应该仔细记录代码的使用方式，并且应该说明 `生成的` 代码是什么样子的。当用户犯错时，请特别注意编译器发出的错误消息。错误消息是用户界面的一部分，您的代码应该根据需要进行调整，以便从用户的角度来看错误消息是可以理解和可操作的。
+如果您使用模板元编程，您应该付出相当大的努力来最小化和隔离复杂性。您应该尽可能将元编程隐藏为实现细节，以便面向用户的标头可读，并且您应该确保对棘手的代码进行了很好的注释。您应该仔细记录代码的使用方式，并且应该说明 "生成的" 代码是什么样子的。当用户犯错时，请特别注意编译器发出的错误消息。错误消息是用户界面的一部分，您的代码应该根据需要进行调整，以便从用户的角度来看错误消息是可以理解和可操作的。
 If you use template metaprogramming, you should expect to put considerable effort into minimizing and isolating the complexity. You should hide metaprogramming as an implementation detail whenever possible, so that user-facing headers are readable, and you should make sure that tricky code is especially well commented. You should carefully document how the code is used, and you should say something about what the "generated" code looks like. Pay extra attention to the error messages that the compiler emits when users make mistakes. The error messages are part of your user interface, and your code should be tweaked as necessary so that the error messages are understandable and actionable from a user point of view.
 
 ## Boost
@@ -2376,7 +2397,7 @@ The [Boost library collection](https://www.boost.org/) is a popular collection o
 Boost 代码通常质量非常高，具有广泛的可移植性，并且填补了 C++ 标准库中的许多重要空白，例如类型特征和更好的绑定器。
 Boost code is generally very high-quality, is widely portable, and fills many important gaps in the C++ standard library, such as type traits and better binders.
 
-一些 Boost 库鼓励可能妨碍可读性的编码实践，例如元编程和其他高级模板技术，以及过度 `函数式` 的编程风格。
+一些 Boost 库鼓励可能妨碍可读性的编码实践，例如元编程和其他高级模板技术，以及过度 "函数式" 的编程风格。
 Some Boost libraries encourage coding practices which can hamper readability, such as metaprogramming and other advanced template techniques, and an excessively "functional" style of programming.
 
 为了让所有可能阅读和维护代码的贡献者保持高水平的可读性，我们只允许经过批准的 Boost 功能子集。目前，允许使用以下库：
@@ -2598,7 +2619,7 @@ switch (x) {
 
 # Inclusive Language
 
-在所有代码中，包括命名和注释，请使用包容性语言并避免其他程序员可能认为不尊重或冒犯的术语（例如 `主` 和 `从` 、 `黑名单` 和 `白名单` 或 `红线` ），即使这些术语表面上也具有中性含义。同样，请使用中性语言，除非您指的是特定的人（并使用他们的代词）。例如，对未指定性别的人使用 `they` / `them` / `their` （[即使是单数](https://apastyle.apa.org/style-grammar-guidelines/grammar/singular-they)） ， `it` / `its` 用于软件、计算机和其他非人的事物。
+在所有代码中，包括命名和注释，请使用包容性语言并避免其他程序员可能认为不尊重或冒犯的术语（例如 "主" 和 "从" 、 "黑名单" 和 "白名单" 或 "红线" ），即使这些术语表面上也具有中性含义。同样，请使用中性语言，除非您指的是特定的人（并使用他们的代词）。例如，对未指定性别的人使用 "they" / "them" / "their" （[即使是单数](https://apastyle.apa.org/style-grammar-guidelines/grammar/singular-they)） ， "it" / "its" 用于软件、计算机和其他非人的事物。
 In all code, including naming and comments, use inclusive language and avoid terms that other programmers might find disrespectful or offensive (such as "master" and "slave", "blacklist" and "whitelist", or "redline"), even if the terms also have an ostensibly neutral meaning. Similarly, use gender-neutral language unless you're referring to a specific person (and using their pronouns). For example, use "they"/"them"/"their" for people of unspecified gender ([even when singular](https://apastyle.apa.org/style-grammar-guidelines/grammar/singular-they)), and "it"/"its" for software, computers, and other things that aren't people.
 
 # 命名
@@ -2664,7 +2685,7 @@ class MyClass {
 请注意，某些众所周知的缩写是可以的，例如迭代变量的 `i` 和模板参数的 `T` 。
 Note that certain universally-known abbreviations are OK, such as `i` for an iteration variable and `T` for a template parameter.
 
-出于以下命名规则的目的， `单词` 是您用英语编写的没有内部空格的任何内容。这包括缩写词，例如首字母缩略词和缩写词。对于以混合大小写书写的名称（有时也称为 "[camel case](https://en.wikipedia.org/wiki/Camel_case)" 或 "[Pascal case](https://en.wiktionary.org/wiki/Pascal_case)")，其中每个单词的第一个字母都大写，更喜欢将缩写作为单个单词大写，例如`StartRpc()`而不是`StartRPC()`。
+出于以下命名规则的目的， "单词" 是您用英语编写的没有内部空格的任何内容。这包括缩写词，例如首字母缩略词和缩写词。对于以混合大小写书写的名称（有时也称为 "[camel case](https://en.wikipedia.org/wiki/Camel_case)" 或 "[Pascal case](https://en.wiktionary.org/wiki/Pascal_case)")，其中每个单词的第一个字母都大写，更喜欢将缩写作为单个单词大写，例如 `StartRpc()` 而不是 `StartRPC()` 。
 For the purposes of the naming rules below, a "word" is anything that you would write in English without internal spaces. This includes abbreviations, such as acronyms and initialisms. For names written in mixed case (also sometimes referred to as "[camel case](https://en.wikipedia.org/wiki/Camel_case)" or "[Pascal case](https://en.wiktionary.org/wiki/Pascal_case)"), in which the first letter of each word is capitalized, prefer to capitalize abbreviations as single words, e.g., `StartRpc()` rather than `StartRPC()`.
 
 模板参数应遵循其类别的命名风格：类型模板参数应遵循*类型名称*规则，非类型模板参数应遵循*变量名称*规则。
@@ -2674,7 +2695,7 @@ Template parameters should follow the naming style for their category: type temp
 
 ## File Names
 
-文件名应全部小写，并且可以包含下划线 (`_`) 或破折号 (`-`)。遵循您的项目使用的约定。如果没有一致的本地模式可遵循，则首选 `_` 。
+文件名应全部小写，并且可以包含下划线 (`_`) 或破折号 (`-`)。遵循您的项目使用的约定。如果没有一致的本地模式可遵循，则首选 "`_`" 。
 Filenames should be all lowercase and can include underscores (`_`) or dashes (`-`). Follow the convention that your project uses. If there is no consistent local pattern to follow, prefer "`_`".
 
 可接受的文件名示例：
@@ -3128,7 +3149,10 @@ When the meaning of a function argument is nonobvious, consider one of the follo
 - 作为最后的手段，使用注释来澄清调用站点的参数含义。
 - As a last resort, use comments to clarify argument meanings at the call site.
 
-Consider the following example: **badcode**
+考虑以下示例：
+Consider the following example:
+
+**badcode**
 
 ```C++
 // What are these arguments?
@@ -3153,7 +3177,10 @@ const DecimalNumber product =
 不要陈述显而易见的事情。特别是，不要从字面上描述代码的作用，除非该行为对于很好理解 C++ 的读者来说并不明显。相反，提供更高级别的注释来描述代码为何执行其操作，或者使代码自我描述。
 Do not state the obvious. In particular, don't literally describe what code does, unless the behavior is nonobvious to a reader who understands C++ well. Instead, provide higher level comments that describe _why_ the code does what it does, or make the code self describing.
 
-Compare this: **badcode**
+比较一下：
+Compare this:
+
+**badcode**
 
 ```C++
 // Find the element in the vector.  <-- Bad: obvious!
@@ -3224,7 +3251,7 @@ Coding style and formatting are pretty arbitrary, but a project is much easier t
 为了帮助您正确设置代码格式，我们创建了一个 [emacs 设置文件](https://raw.githubusercontent.com/google/styleguide/gh-pages/google-c-style.el)。
 To help you format code correctly, we've created a [settings file for emacs](https://raw.githubusercontent.com/google/styleguide/gh-pages/google-c-style.el).
 
-## 线长
+## 行长
 
 ## Line Length
 
@@ -3256,7 +3283,7 @@ A line may exceed 80 characters if it is
 
 - 包含语句。
 - an include statement.
-- _头球后卫_
+- _头文件保护_
 - a _header guard_
 - 使用声明
 - a using-declaration
