@@ -111,7 +111,7 @@ Correct use of header files can make a huge difference to the readability, size 
 以下规则将指导您克服使用头文件的各种陷阱。
 The following rules will guide you through the various pitfalls of using header files.
 
-## 自包含标头
+## 自包含头文件
 
 ## Self-contained Headers
 
