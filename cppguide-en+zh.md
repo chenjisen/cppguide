@@ -89,7 +89,7 @@ The intent of this document is to provide maximal guidance with reasonable restr
 
 # C++ Version
 
-目前，代码应以 C++17 为目标，即不应使用 C++2x 功能，_指定的初始化程序_ 除外。本指南针对的 C++ 版本将随着时间的推移（积极地）进步。
+目前，代码应以 C++17 为目标，即不应使用 C++2x 功能，_指定的初始化程序_ （_designated initializers_）除外。本指南针对的 C++ 版本将随着时间的推移（激进地）改进。
 Currently, code should target C++17, i.e., should not use C++2x features, with the exception of _designated initializers_. The C++ version targeted by this guide will advance (aggressively) over time.
 
 不要使用 [非标准扩展](#Nonstandard_Extensions)。
