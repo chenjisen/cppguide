@@ -1,4 +1,4 @@
-# Google C++ 风格指南
+9# Google C++ 风格指南
 
 # Google C++ Style Guide
 
@@ -55,7 +55,7 @@ The goals of the style guide as we currently see them are as follows:
 - 适当时与更广泛的 C++ 社区保持一致
 - Be consistent with the broader C++ community when appropriate
 
-  与其他组织使用 C++ 的方式保持一致具有价值，其原因与我们代码库中的一致性相同。如果 C++ 标准中的某个功能解决了某个问题，或者某个惯用语被广泛知晓并接受，那就是使用它的理由。然而，有时标准功能和习惯用法是有缺陷的，或者只是在设计时没有考虑到我们的代码库的需求。在这些情况下（如下所述），限制或禁止标准功能是适当的。在某些情况下，我们更喜欢自行开发的或第三方的库，而不是 C++ 标准中定义的库，要么是出于感知的优越性，要么是没有足够的价值将代码库转换为标准接口。
+  与其他组织使用 C++ 的方式保持一致是有价值的，其原因与我们代码库中的一致性相同。如果 C++ 标准中的某个功能解决了某个问题，或者某个惯用语被广泛知晓并接受，那就是使用它的理由。然而，有时标准功能和习惯用法是有缺陷的，或者只是在设计时没有考虑到我们的代码库的需求。在这些情况下（如下所述），限制或禁止标准功能是适当的。在某些情况下，我们更喜欢自行开发的或第三方的库，而不是 C++ 标准中定义的库，要么是因为它们被认为更好，要么是因为没有足够的价值将代码库转换为标准接口。
   Consistency with the way other organizations use C++ has value for the same reasons as consistency within our code base. If a feature in the C++ standard solves a problem, or if some idiom is widely known and accepted, that's an argument for using it. However, sometimes standard features and idioms are flawed, or were just designed without our codebase's needs in mind. In those cases (as described below) it's appropriate to constrain or ban standard features. In some cases we prefer a homegrown or third-party library over a library defined in the C++ Standard, either out of perceived superiority or insufficient value to transition the codebase to the standard interface.
 
 - 避免令人惊讶或危险的构造
