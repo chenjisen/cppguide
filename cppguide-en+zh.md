@@ -49,7 +49,7 @@ The goals of the style guide as we currently see them are as follows:
 - 与现有代码保持一致
 - Be consistent with existing code
 
-  在我们的代码库中一致使用一种风格可以让我们专注于其他（更重要的）问题。一致性还可以实现自动化：只有当您的代码与工具的期望一致时，格式化代码或调整 `#include` 的工具才能正常工作。在许多情况下，归因于 "保持一致" 的规则归结为 "只选择一个，不再担心它" ；在这些问题上允许灵活性的潜在价值被人们争论的成本所抵消。然而，一致性是有限制的；当没有明确的技术论证或长期方向时，这是一个很好的平局打破者。它在本地应用更广泛（每个文件，或一组紧密相关的接口）。一般来说，一致性不应该被用作以旧风格做事的理由，而不考虑新风格的好处，或者代码库随着时间的推移向新风格收敛的趋势。
+  在我们的代码库中一致使用一种风格可以让我们专注于其他（更重要的）问题。一致性还可以实现自动化：只有当您的代码与工具的期望一致时，格式化代码或调整 `#include` 的工具才能正常工作。在许多情况下，归因于 "保持一致" 的规则归结为 "只选择一个，不再担心它" ；在这些问题上允许灵活性的潜在价值被人们争论的成本所抵消。然而，一致性是有限制的；当没有明确的技术论证或长期方向时，这是一个很好的平局打破者。它在局部应用更广泛（每个文件，或一组紧密相关的接口）。一般来说，一致性不应该被用作以旧风格做事的理由，而不考虑新风格的好处，或者代码库随着时间的推移向新风格收敛的趋势。（一致性通常不应该被用作在不考虑新风格的好处的情况下以旧风格做事的理由，或者不考虑代码库随着时间的推移向新风格靠拢的趋势。？）
   Using one style consistently through our codebase lets us focus on other (more important) issues. Consistency also allows for automation: tools that format your code or adjust your `#include`s only work properly when your code is consistent with the expectations of the tooling. In many cases, rules that are attributed to "Be Consistent" boil down to "Just pick one and stop worrying about it"; the potential value of allowing flexibility on these points is outweighed by the cost of having people argue over them. However, there are limits to consistency; it is a good tie breaker when there is no clear technical argument, nor a long-term direction. It applies more heavily locally (per file, or for a tightly-related set of interfaces). Consistency should not generally be used as a justification to do things in an old style without considering the benefits of the new style, or the tendency of the codebase to converge on newer styles over time.
 
 - 适当时与更广泛的 C++ 社区保持一致
