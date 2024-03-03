@@ -82,7 +82,7 @@ The goals of the style guide as we currently see them are as follows:
   性能优化有时可能是必要且适当的，即使它们与本文档的其他原则相冲突。
   Performance optimizations can sometimes be necessary and appropriate, even when they conflict with the other principles of this document.
 
-本文件的目的是提供最大程度的指导和合理的限制。一如既往，常识和良好品味应该占上风。我们特指整个 Google C++ 社区的既定惯例，而不仅仅是您的个人偏好或您团队的偏好。对巧妙或不寻常的结构持怀疑态度并不愿使用：没有禁令并不等于获得继续进行的许可。运用您的判断，如果您不确定，请随时询问您的项目负责人以获取更多信息。
+本文件的目的是提供最大程度的指导和合理的限制。一如既往，常识和良好品味应该占上风。我们特指整个 Google C++ 社区的既定惯例，而不仅仅是您的个人偏好或您团队的偏好。请对巧妙或不寻常的结构表示怀疑态度并不要去使用：没有禁令并不等于获得继续的许可。运用您的判断，如果您不确定，请随时询问您的项目负责人以获取更多信息。
 The intent of this document is to provide maximal guidance with reasonable restriction. As always, common sense and good taste should prevail. By this we specifically refer to the established conventions of the entire Google C++ community, not just your personal preferences or those of your team. Be skeptical about and reluctant to use clever or unusual constructs: the absence of a prohibition is not the same as a license to proceed. Use your judgment, and if you are unsure, please don't hesitate to ask your project leads to get additional input.
 
 # C++ 版本
