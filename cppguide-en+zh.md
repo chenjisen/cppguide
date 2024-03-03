@@ -115,13 +115,13 @@ The following rules will guide you through the various pitfalls of using header 
 
 ## Self-contained Headers
 
-头文件应该是独立的（自行编译）并以 `.h` 结尾。旨在包含的非头文件应以 `.inc` 结尾，并谨慎使用。
+头文件应该是独立的（自行编译）并以 `.h` 结尾。用于包含的非头文件应以 `.inc` 结尾，并谨慎使用。
 Header files should be self-contained (compile on their own) and end in `.h`. Non-header files that are meant for inclusion should end in `.inc` and be used sparingly.
 
 所有头文件都应该是独立的。用户和重构工具不必遵守特殊条件才能包含标头。具体来说，标头应该具有*标头防护*并包含它需要的所有其他标头。
 All header files should be self-contained. Users and refactoring tools should not have to adhere to special conditions to include the header. Specifically, a header should have _header guards_ and include all other headers it needs.
 
-当标头声明标头的客户端将实例化的内联函数或模板时，内联函数和模板也必须在标头中直接或在其包含的文件中具有定义。不要将这些定义移动到单独包含的头文件（`-inl.h`）中；这种做法过去很常见，但现在已不再允许。当模板的所有实例化都出现在一个 `.cc` 文件中时，要么因为它们是[显式](https://en.cppreference.com/w/cpp/language/class_template#Explicit_instantiation)，要么因为定义是可访问的仅 `.cc` 文件，模板定义可以保留在该文件中。
+当标头声明标头的客户端将实例化的内联函数或模板时（xxx），内联函数和模板也必须在标头中具有定义，或在其包含的文件中具有定义。不要将这些定义移动到单独包含的头文件（`-inl.h`）中；这种做法过去很常见，但现在已不再允许。当模板的所有实例化都出现在一个 `.cc` 文件中时，要么因为它们是[显式的](https://en.cppreference.com/w/cpp/language/class_template#Explicit_instantiation)，要么因为定义是仅在该 `.cc` 文件可访问时，模板定义可以保留在该文件中。
 When a header declares inline functions or templates that clients of the header will instantiate, the inline functions and templates must also have definitions in the header, either directly or in files it includes. Do not move these definitions to separately included header (`-inl.h`) files; this practice was common in the past, but is no longer allowed. When all instantiations of a template occur in one `.cc` file, either because they're [explicit](https://en.cppreference.com/w/cpp/language/class_template#Explicit_instantiation) or because the definition is accessible to only the `.cc` file, the template definition can be kept in that file.
 
 在极少数情况下，设计为包含的文件不是独立的。这些通常旨在包含在不寻常的位置，例如另一个文件的中间。他们可能不使用*标头防护*，并且可能不包含其先决条件。使用 `.inc` 扩展名命名此类文件。谨慎使用，并尽可能选择独立的标头。
@@ -146,14 +146,14 @@ To guarantee uniqueness, they should be based on the full path in a project's so
 #endif  // FOO_BAR_BAZ_H_
 ```
 
-## 包括您使用的内容
+## 包含您使用的内容
 
 ## Include What You Use
 
-如果源文件或头文件引用在其他地方定义的符号，则该文件应直接包含一个头文件，该头文件正确地旨在提供该符号的声明或定义。出于任何其他原因，它不应包含头文件。
+如果源文件或头文件引用在其他地方定义的符号，则该文件应直接包含一个头文件，该头文件正确地旨在提供该符号的声明或定义。它不应为任何其他原因去包含头文件。
 If a source or header file refers to a symbol defined elsewhere, the file should directly include a header file which properly intends to provide a declaration or definition of that symbol. It should not include header files for any other reason.
 
-不要依赖传递包含。这允许人们从标头中删除不再需要的 `#include` 语句，而不会破坏客户端。这也适用于相关标头 - 如果 `foo.cc` 使用其中的符号，则 `foo.cc` 应该包含 `bar.h` ，即使 `foo.h` 包含 `bar.h` 。
+不要依赖传递包含。这允许人们从标头中删除不再需要的 `#include` 语句，而不会破坏客户端（？？？）。这也适用于相关标头 - 如果 `foo.cc` 使用其中的符号，则 `foo.cc` 应该包含 `bar.h` ，即使 `foo.h` 包含 `bar.h` 。
 Do not rely on transitive inclusions. This allows people to remove no-longer-needed `#include` statements from their headers without breaking clients. This also applies to related headers - `foo.cc` should include `bar.h` if it uses a symbol from it even if `foo.h` includes `bar.h`.
 
 ## 转发声明
@@ -183,7 +183,7 @@ ABSL_DECLARE_FLAG(flag_in_b);
 - Forward declarations can hide a dependency, allowing user code to skip necessary recompilation when headers change.
 - 与 `#include` 语句相反的前向声明使得自动工具很难发现定义符号的模块。
 - A forward declaration as opposed to an `#include` statement makes it difficult for automatic tooling to discover the module defining the symbol.
-- 前向声明可能会因库的后续更改而被破坏。函数和模板的前向声明可以防止标头所有者对其 API 进行其他兼容的更改，例如扩大参数类型、添加具有默认值的模板参数或迁移到新的命名空间。
+- 前向声明可能会因库的后续更改而被破坏。函数和模板的前向声明可以防止标头所有者对其 API 进行其他兼容的更改，例如扩宽参数类型、添加具有默认值的模板参数或迁移到新的命名空间。
 - A forward declaration may be broken by subsequent changes to the library. Forward declarations of functions and templates can prevent the header owners from making otherwise-compatible changes to their APIs, such as widening a parameter type, adding a template parameter with a default value, or migrating to a new namespace.
 - 从名称空间 `std::` 向前声明符号会产生未定义的行为。
 - Forward declaring symbols from namespace `std::` yields undefined behavior.
