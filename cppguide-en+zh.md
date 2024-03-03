@@ -12,7 +12,7 @@ C++ is one of the main development languages used by many of Google's open-sourc
 本指南的目标是通过详细描述编写 C++ 代码的注意事项来管理这种复杂性。这些规则的存在是为了保持代码库的可管理性，同时仍然允许编码人员高效地使用 C++ 语言功能。
 The goal of this guide is to manage this complexity by describing in detail the dos and don'ts of writing C++ code . These rules exist to keep the code base manageable while still allowing coders to use C++ language features productively.
 
-_风格_，也称为可读性，是我们所说的管理 C++ 代码的约定。术语 "样式" 有点用词不当，因为这些约定涵盖的不仅仅是源文件格式。
+_样式_，也称为可读性，是我们所说的管理 C++ 代码的约定。术语 "样式" 有点用词不当，因为这些约定涵盖的不仅仅是源文件格式。
 _Style_, also known as readability, is what we call the conventions that govern our C++ code. The term Style is a bit of a misnomer, since these conventions cover far more than just source file formatting.
 
 Google 开发的大多数开源项目都符合本指南中的要求。
