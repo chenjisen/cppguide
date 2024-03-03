@@ -1,4 +1,4 @@
-9# Google C++ 风格指南
+# Google C++ 风格指南
 
 # Google C++ Style Guide
 
