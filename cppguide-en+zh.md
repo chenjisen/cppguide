@@ -73,7 +73,7 @@ The goals of the style guide as we currently see them are as follows:
 - 注意我们的规模
 - Be mindful of our scale
 
-  由于代码库包含 1 亿多行代码和数千名工程师，一名工程师的一些错误和简化可能会让许多工程师付出高昂的代价。例如，避免污染全局命名空间尤为重要：如果每个人都将内容放入全局命名空间，则数亿行代码库中的名称冲突将很难处理且难以避免。
+  由于代码库包含上亿行代码和上千名工程师，一名工程师的一些错误和简化可能会让许多工程师付出高昂的代价。例如，避免污染全局命名空间尤为重要：如果每个人都将内容放入全局命名空间，则数亿行代码库中的名称冲突将很难处理且难以避免。
   With a codebase of 100+ million lines and thousands of engineers, some mistakes and simplifications for one engineer can become costly for many. For instance it's particularly important to avoid polluting the global namespace: name collisions across a codebase of hundreds of millions of lines are difficult to work with and hard to avoid if everyone puts things into the global namespace.
 
 - 必要时允许优化
