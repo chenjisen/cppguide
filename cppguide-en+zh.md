@@ -61,13 +61,13 @@ The goals of the style guide as we currently see them are as follows:
 - 避免令人惊讶或危险的构造
 - Avoid surprising or dangerous constructs
 
-  C++ 的特性比人们乍一看更令人惊讶或更危险。一些样式指南限制是为了防止陷入这些陷阱。样式指南对此类限制的豁免有很高的门槛，因为放弃此类规则通常会直接面临损害程序正确性的风险。
+  C++ 的特性比人们乍一看更令人惊讶或更危险。一些样式指南限制是为了防止掉进这些陷阱。样式指南对此类限制的豁免有很高的门槛，因为放弃此类规则通常会直接面临损害程序正确性的风险。
   C++ has features that are more surprising or dangerous than one might think at a glance. Some style guide restrictions are in place to prevent falling into these pitfalls. There is a high bar for style guide waivers on such restrictions, because waiving such rules often directly risks compromising program correctness.
 
 - 避免我们的普通 C++ 程序员会觉得棘手或难以维护的结构
 - Avoid constructs that our average C++ programmer would find tricky or hard to maintain
 
-  C++ 具有可能不适合普遍使用的功能，因为它们给代码带来了复杂性。在广泛使用的代码中，使用更复杂的语言结构可能更容易被接受，因为更复杂的实现的任何好处都会随着使用而大幅增加，并且在使用代码的新部分时不需要再次付出理解复杂性的成本。代码库。如有疑问，可以通过询问您的项目负责人来寻求此类规则的豁免。这对于我们的代码库尤其重要，因为代码所有权和团队成员资格会随着时间的推移而发生变化：即使使用某些代码的每个人目前都理解它，这种理解也不能保证在几年后仍然有效。
+  C++ 具有可能不适合普遍使用的功能，因为它们给代码带来了复杂性。在广泛使用的代码中，使用更复杂的语言结构可能更容易被接受，因为更复杂的实现的任何好处都会随着使用而大幅增加，并且在使用代码的新部分时不需要再次付出理解复杂性的成本。代码库。（？？？）如有疑问，可以通过询问您的项目负责人来寻求此类规则的豁免。这对于我们的代码库尤其重要，因为代码所有权和团队成员资格会随着时间的推移而发生变化：即使使用某些代码的每个人目前都理解它，这种理解也不能保证在几年后仍然有效。
   C++ has features that may not be generally appropriate because of the complexity they introduce to the code. In widely used code, it may be more acceptable to use trickier language constructs, because any benefits of more complex implementation are multiplied widely by usage, and the cost in understanding the complexity does not need to be paid again when working with new portions of the codebase. When in doubt, waivers to rules of this type can be sought by asking your project leads. This is specifically important for our codebase because code ownership and team membership changes over time: even if everyone that works with some piece of code currently understands it, such understanding is not guaranteed to hold a few years from now.
 
 - 注意我们的规模
